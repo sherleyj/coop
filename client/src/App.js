@@ -3,7 +3,12 @@ import Nav from './Nav';
 import Coop from './Coop';
 import Player from './Player';
 import './App.css';
-import { BrowserRouter as Router, Switch, Route, useHistory } from 'react-router-dom';
+import { 
+  BrowserRouter as Router, 
+  Switch, 
+  Route, 
+  useHistory
+} from 'react-router-dom';
 
 
 function App() {
@@ -13,7 +18,9 @@ function App() {
         <Nav/>
         <Switch>
           <Route path='/' exact component={GameIdForm} />
-          <Route path='/:gameid' exact component={Coop} />
+          <Route path='/:gameid' exact >
+            <Coop />
+          </Route>
           <Route path='/:gameid/player/:id' component={Player} />
         </Switch>
       </Router>

@@ -7,7 +7,7 @@ function Nav() {
     return (
         <nav>
             <Link to='/'>
-                <h3>Create New Room</h3>
+                <h3>Home</h3>
             </Link>
         </nav>
     );
