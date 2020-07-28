@@ -1,15 +1,31 @@
-import React, {Component} from 'react';
+import React, { useState,
+                useEffect,
+} from 'react';
 import './App.css';
 import { 
     useParams,
-    useState
 } from "react-router-dom";
 
 function Coop() {
-    let { gameid } = useParams();
+    const { gameidurl } = useParams();
+    const [gameId, setGameId] = useState(gameidurl);
+
+    useEffect (() => {
+        getGame();
+    });
+
+    const getGame = async () => {
+        const data = await fetch(
+            'http://localhost:9000/game/' + gameId
+        );
+
+        const gameIdFromAPI = await data.json();
+        console.log(gameIdFromAPI.gameid);
+    };
+
     return (
         <div>
-            <h1>Game Page, {gameid}</h1>
+            <h1>Game Page for {gameId}</h1>
         </div>
     );
 
