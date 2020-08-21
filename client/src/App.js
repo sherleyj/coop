@@ -21,7 +21,7 @@ function App() {
           <Route path='/:gameidurl' exact>
             <Coop />
           </Route>
-          <Route path='/:gameidurl/player/:id'>
+          <Route path='/:gameidurl/player/:playerid'>
             <Player />
           </Route>
         </Switch>
