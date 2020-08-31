@@ -1,15 +1,21 @@
 var express = require('express');
 var router = express.Router();
 const Redis = require("ioredis");
+const bodyParser = require("body-parser");
 const redis = new Redis();
+const app = express();
+
+//Here we are configuring express to use body-parser as middle-ware.
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 /* GET home page. */
-router.get('/game/:id', function(req, res, next) {
+router.get('/getGame/:id', function(req, res, next) {
   const gameid = req.params.id;
   console.log("grabbed from request parameter: " + gameid);
 
   const game = {
-    "gameId": "gameid",
+    "gameId": gameid,
     "numPlayers": 6,
     "challenge": false,
     "players": [
@@ -96,8 +102,23 @@ router.get('/game/:id', function(req, res, next) {
 
 });
 
-router.post('/game/:id', function(req, res) {
-  res.send('Received a POST HTTP method');
+router.post('/setGame', function(req, res) {
+  // const gameid = req.params.id;
+
+  const gameId = req.body.gameId;
+  console.log("POST! GameId: ", gameId);
+
+  redis.set(gameId, JSON.stringify(req.body));
+
+  redis.get(gameId).then(function (result) {
+    console.log("this is the result: " + result); 
+    resJSON = JSON.parse(result);
+    res.json(resJSON);
+  }).catch(function (error) {
+    console.log(error);
+    res.send("There was an error.");
+  });
+
 });
  
 router.put('/', (req, res) => {

@@ -11,7 +11,7 @@ import {
 function Coop() {
     
     useEffect (() => {
-        getGame();
+        getGameAPI();
     }, []);
 
     const { gameidurl } = useParams(); 
@@ -25,29 +25,25 @@ function Coop() {
     //     }
     // }, [game]);
 
-    const getGame = async () => {
+    const getGameAPI = async () => {
         try {
             const data = await fetch(
-                'http://localhost:9000/game/' + gameId
+                'http://localhost:9000/getGame/' + gameId
             );
-
+    
             const gameFromAPI = await data.json(); 
-            console.log(gameFromAPI);
-            
-            setGame(gameFromAPI);
-
-            console.log("****** getGame:  " +  gameFromAPI.gameId);
-            console.log("****** getGame:  " +  gameFromAPI.players[0]);
-            // console.log("****** getGame:  game.players[i]: " +  game.players[i]);
-
-
-
-            // setPlayers(gameFromAPI.players);
-            // playersToRender();
+            setGame({
+              ...gameFromAPI,
+              players : [...gameFromAPI.players],
+              characters : [...gameFromAPI.characters]
+            })
+    
+            console.log("getGame, gameFromAPI:", gameFromAPI)
         } catch (e) {
             console.log(e);
+            return <div>Error: {e.message}</div>;
         }
-    };
+    }; 
 
     let playersToRender =  game.players.map((p) => {
         

@@ -27,7 +27,7 @@ function Player() {
   const getGameAPI = async () => {
     try {
         const data = await fetch(
-            'http://localhost:9000/game/' + gameId
+            'http://localhost:9000/getGame/' + gameId
         );
 
         const gameFromAPI = await data.json(); 
@@ -35,7 +35,7 @@ function Player() {
           ...gameFromAPI,
           players : [...gameFromAPI.players],
           characters : [...gameFromAPI.characters]
-        })
+        });
 
         console.log("getGame, gameFromAPI:", gameFromAPI)
     } catch (e) {
@@ -46,7 +46,27 @@ function Player() {
 
   const setGameAPI = async () => {
     try {
-        console.log("POST!");
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(game)
+      };
+
+      console.log("POST!! coins: ", game.players[playerid-1].coins);
+
+      const data = await fetch('http://localhost:9000/setGame', requestOptions);
+      const gameFromAPI = await data.json();
+
+      console.log("POST!! gameFromAPI coins: ", gameFromAPI.players[playerid-1].coins);
+
+      
+      // setGame({
+      //   ...gameFromAPI,
+      //   players : [...gameFromAPI.players],
+      //   characters : [...gameFromAPI.characters]
+      // });
+
+
     } catch (e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -57,7 +77,44 @@ function Player() {
     e.preventDefault();
     // if (game.players[playerid-1]) {
       const coins = game.players[playerid-1].coins + 1;
-      game.players[playerid-1].coins = coins;
+      game.players[playerid-1].coins = coins; // not sure if I should/can do this?
+      game.players[playerid-1].turn = false;
+
+      setGame({
+        ...game,
+        players : [...game.players],
+        characters : [...game.characters]
+      })
+
+      console.log("income, now have: ", game.players[playerid-1].coins );
+      console.log("Checking characters: ", game.characters[0].name);
+    // }
+  }
+
+  function aide(e) {
+    e.preventDefault();
+    // if (game.players[playerid-1]) {
+      const coins = game.players[playerid-1].coins + 2;
+      game.players[playerid-1].coins = coins; // not sure if I should/can do this?
+      game.players[playerid-1].turn = false;
+
+      setGame({
+        ...game,
+        players : [...game.players],
+        characters : [...game.characters]
+      })
+
+      console.log("income, now have: ", game.players[playerid-1].coins );
+      console.log("Checking characters: ", game.characters[0].name);
+    // }
+  }
+
+  function coop(e) {
+    e.preventDefault();
+    // if (game.players[playerid-1]) {
+      const coins = game.players[playerid-1].coins - 7;
+      game.players[playerid-1].coins = coins; // not sure if I should/can do this?
+      game.players[playerid-1].turn = false;
 
       setGame({
         ...game,
@@ -80,12 +137,12 @@ function Player() {
 
   return (
     <div>
-      <h1>Player Page {playerid}</h1>
-     
-        {coins}
-        <button onClick={income}>Collect Income</button>
-        {/* <button onClick={this.aide}>Collect Foreign Aide</button>
-        <button onClick={this.coop}>Coop!</button> */}
+      <h1>Player Page {playerid} </h1>
+      {coins}
+
+      <button onClick={income}>Collect Income</button>
+      <button onClick={aide}>Collect Foreign Aide</button>
+      <button onClick={coop}>Coop!</button>
     </div>
   );
   
