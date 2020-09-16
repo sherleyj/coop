@@ -20,14 +20,14 @@ function App() {
         <Nav/>
         <Switch>
           <GameProvider>
-          <Route path='/' exact component={GameIdForm} />
-          
-          <Route path='/:gameidurl' exact>
-            <Coop />
-          </Route>
-          <Route path='/:gameidurl/player/:playerid'>
-            <Player />
-          </Route>
+            
+            <Route path='/' exact component={GameIdForm} />
+            <Route path='/:gameidURL' exact>
+              <Coop />
+            </Route>
+            <Route path='/:gameidURL/player/:playeridURL'>
+              <Player />
+            </Route>
           </GameProvider>
         </Switch>
       </Router>

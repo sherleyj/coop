@@ -1,6 +1,5 @@
 import React, { 
     useState,
-    useEffect,
     createContext,
 } from 'react';
 import './App.css';
@@ -19,3 +18,4 @@ export const GameProvider = props => {
   );
 
 }
+

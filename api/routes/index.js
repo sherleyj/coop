@@ -18,71 +18,96 @@ router.get('/getGame/:id', function(req, res, next) {
     "gameId": gameid,
     "numPlayers": 6,
     "challenge": false,
+    "pTurnId": 0,
     "players": [
       {
-        "id": 1,
-        "character": [{"name": "duke", "active": true}, {"name": "captain", "active": true}],
+        "id": 0,
+        "characters": [{"name": "duke", "active": true}, {"name": "captain", "active": true}],
         "coins": 2,
-        "turn": true
+        "turn": true,
+        "challenge": false,
+        "cResponded": false,
+        "actionTaken":"",
+        "cLoosePlayer": false
+      },
+      {
+        "id": 1,
+        "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
+        "coins": 2,
+        "turn": false,
+        "challenge": false,
+        "cResponded": false,
+        "actionTaken":"",
+        "cLoosePlayer": false
       },
       {
         "id": 2,
-        "character": [{"name": "duke", "active": true}, {"name": "captain", "active": true}],
+        "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
         "coins": 2,
-        "turn": false
+        "turn": false,
+        "challenge": false,
+        "cResponded": false,
+        "actionTaken":"",
+        "cLoosePlayer": false
       },
       {
         "id": 3,
-        "character": [{"name": "duke", "active": true}, {"name": "captain", "active": true}],
+        "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
         "coins": 2,
-        "turn": false
+        "turn": false,
+        "challenge": false,
+        "cResponded": false,
+        "actionTaken":"",
+        "cLoosePlayer": false
       },
       {
         "id": 4,
-        "character": [{"name": "duke", "active": true}, {"name": "captain", "active": true}],
+        "characters":[{"id": 0, "active": true}, {"id": 1, "active": true}],
         "coins": 2,
-        "turn": false
+        "turn": false,
+        "challenge": false,
+        "cResponded": false,
+        "actionTaken":"",
+        "cLoosePlayer": false
       },
       {
         "id": 5,
-        "character":[{"name": "duke", "active": true}, {"name": "captain", "active": true}],
+        "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
         "coins": 2,
-        "turn": false
-      },
-      {
-        "id": 6,
-        "character": [{"name": "duke", "active": true}, {"name": "captain", "active": true}],
-        "coins": 2,
-        "turn": false
+        "turn": false,
+        "challenge": false,
+        "cResponded": false,
+        "actionTaken":"",
+        "cLoosePlayer": false
       }
     ],
     "characters": [
       {
-        "name": "duke",
+        "name": "Duke",
         "action": "tax",
         "block": "foreignAid",
         "available": 3
       },
       {
-        "name": "assassin",
+        "name": "Assassin",
         "action": "assassinate",
         "block": "",
         "available": 3
       },
       {
-        "name": "ambassador",
+        "name": "Ambassador",
         "action": "exchange",
         "block": "stealing",
         "available": 3
       },
       {
-        "name": "captain",
+        "name": "Aaptain",
         "action": "steal",
         "block": "stealing",
         "available": 3
       },
       {
-        "name": "contessa",
+        "name": "Aontessa",
         "action": "",
         "block": "assassination",
         "available": 3
