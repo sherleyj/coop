@@ -19,10 +19,11 @@ router.get('/getGame/:id', function(req, res, next) {
     "numPlayers": 6,
     "challenge": false,
     "pTurnId": 0,
+    "cResponded": 0,
     "players": [
       {
         "id": 0,
-        "characters": [{"name": "duke", "active": true}, {"name": "captain", "active": true}],
+        "characters": [{"id": 2, "active": true}, {"id": 1, "active": true}],
         "coins": 2,
         "turn": true,
         "challenge": false,
@@ -42,7 +43,7 @@ router.get('/getGame/:id', function(req, res, next) {
       },
       {
         "id": 2,
-        "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
+        "characters": [{"id": 3, "active": true}, {"id": 1, "active": true}],
         "coins": 2,
         "turn": false,
         "challenge": false,
@@ -62,7 +63,7 @@ router.get('/getGame/:id', function(req, res, next) {
       },
       {
         "id": 4,
-        "characters":[{"id": 0, "active": true}, {"id": 1, "active": true}],
+        "characters":[{"id": 4, "active": true}, {"id": 1, "active": true}],
         "coins": 2,
         "turn": false,
         "challenge": false,
@@ -72,7 +73,7 @@ router.get('/getGame/:id', function(req, res, next) {
       },
       {
         "id": 5,
-        "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
+        "characters": [{"id": 2, "active": true}, {"id": 0, "active": true}],
         "coins": 2,
         "turn": false,
         "challenge": false,
@@ -85,7 +86,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "name": "Duke",
         "action": "tax",
-        "block": "foreignAid",
+        "block": "aid",
         "available": 3
       },
       {
@@ -97,19 +98,19 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "name": "Ambassador",
         "action": "exchange",
-        "block": "stealing",
+        "block": "steal",
         "available": 3
       },
       {
-        "name": "Aaptain",
+        "name": "Captain",
         "action": "steal",
-        "block": "stealing",
+        "block": "steal",
         "available": 3
       },
       {
-        "name": "Aontessa",
+        "name": "Contessa",
         "action": "",
-        "block": "assassination",
+        "block": "assassinate",
         "available": 3
       }
     ]
