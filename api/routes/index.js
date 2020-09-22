@@ -19,7 +19,7 @@ router.get('/getGame/:id', function(req, res, next) {
     "numPlayers": 6,
     "challenge": false,
     "pTurnId": 0,
-    "cResponded": 0,
+    "passed": 0,
     "players": [
       {
         "id": 0,
@@ -27,9 +27,9 @@ router.get('/getGame/:id', function(req, res, next) {
         "coins": 2,
         "turn": true,
         "challenge": false,
-        "cResponded": false,
+        "passed": false,
         "actionTaken":"",
-        "cLoosePlayer": false
+        "losePlayer": false
       },
       {
         "id": 1,
@@ -37,9 +37,9 @@ router.get('/getGame/:id', function(req, res, next) {
         "coins": 2,
         "turn": false,
         "challenge": false,
-        "cResponded": false,
+        "passed": false,
         "actionTaken":"",
-        "cLoosePlayer": false
+        "losePlayer": false
       },
       {
         "id": 2,
@@ -47,9 +47,9 @@ router.get('/getGame/:id', function(req, res, next) {
         "coins": 2,
         "turn": false,
         "challenge": false,
-        "cResponded": false,
+        "passed": false,
         "actionTaken":"",
-        "cLoosePlayer": false
+        "losePlayer": false
       },
       {
         "id": 3,
@@ -57,9 +57,9 @@ router.get('/getGame/:id', function(req, res, next) {
         "coins": 2,
         "turn": false,
         "challenge": false,
-        "cResponded": false,
+        "passed": false,
         "actionTaken":"",
-        "cLoosePlayer": false
+        "losePlayer": false
       },
       {
         "id": 4,
@@ -67,9 +67,9 @@ router.get('/getGame/:id', function(req, res, next) {
         "coins": 2,
         "turn": false,
         "challenge": false,
-        "cResponded": false,
+        "passed": false,
         "actionTaken":"",
-        "cLoosePlayer": false
+        "losePlayer": false
       },
       {
         "id": 5,
@@ -77,9 +77,9 @@ router.get('/getGame/:id', function(req, res, next) {
         "coins": 2,
         "turn": false,
         "challenge": false,
-        "cResponded": false,
+        "passed": false,
         "actionTaken":"",
-        "cLoosePlayer": false
+        "losePlayer": false
       }
     ],
     "characters": [

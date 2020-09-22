@@ -2,7 +2,9 @@ import React, {
   useState,
   useEffect,
   useContext,
-} from 'react';import './App.css';
+} from 'react';
+import './App.css';
+// import Characters from './Characters'
 import { 
   useParams,
   Link,
@@ -20,9 +22,10 @@ function Player() {
   const [game, setGame] = useContext(GameContext);
   const challenge_actions = ['tax','assassinate','steal','exchange'];
   const block_actions = ['aid','steal','assassinate'];
+  const [loseCharId, setLoseCharId] = useState(0); 
 
   console.log("game.challenge: ", game.challenge);
-  console.log("game.cResponded", game.cResponded);
+  console.log("game.passed", game.passed);
 
   useEffect (() => {
     if (!game.gameId || game.gameId != gameidURL || Object.entries(game).length === 0){
@@ -87,19 +90,19 @@ function Player() {
 
     game.challenge = false;
 
-    game.cResponded = 0;
+    game.passed = 0;
     game.players.forEach((p) => {
-      p.cResponded = false
+      p.passed = false
     })
 
   }
 
-  function cRespondedReset() {
+  function passedReset() {
     game.players.forEach( (p) => {
-      p.cResponded = false; // rename to pass
+      p.passed = false; // rename to pass
     })
   }
-      // // game.players[playerid].cResponded = true;
+      // // game.players[playerid].passed = true;
 
   
   function income(e) {
@@ -118,7 +121,6 @@ function Player() {
       })
 
       // console.log("income, now have: ", game.players[playerid].coins );
-      setGameAPI();
     }
   }
 
@@ -139,7 +141,6 @@ function Player() {
       })
 
       // console.log("aid, now have: ", game.players[playerid].coins );
-      setGameAPI();
     }
   }
 
@@ -164,7 +165,6 @@ function Player() {
       })
 
       // console.log("tax, now have: ", game.players[playerid].coins );
-      setGameAPI();
     }
   }
 
@@ -184,7 +184,6 @@ function Player() {
       })
 
       // console.log("coop, now have: ", game.players[playerid].coins );
-      setGameAPI();
     }
   }
 
@@ -205,7 +204,6 @@ function Player() {
       })
 
       // console.log("steal, now have: ", game.players[playerid].coins );
-      setGameAPI();
     }
   }
 
@@ -217,7 +215,7 @@ function Player() {
 
     // // challenging player whose turn it is.
     // game.players[playerid].challenge = true;
-    // // game.players[playerid].cResponded = true;
+    // // game.players[playerid].passed = true;
 
 
     let turnPlayer = game.players[game.pTurnId];
@@ -226,35 +224,36 @@ function Player() {
     let character_1 =  turnPlayer.characters[1];
     
     if (can_challenge) {
-      if ((game.characters[character_0.id].action != turnPlayer.actionTaken 
-        && game.characters[character_1.id].action != turnPlayer.actionTaken)
-        && character_0.active && character_1.active) {
-          console.log("*** Loose Player!");
-          turnPlayer.cLoosePlayer = true;
-          if (turnPlayer.actionTaken == 'tax') {
-            turnPlayer.coins = turnPlayer.coins - 3;
+      if (character_0.active && character_1.active) {
+          console.log("*** Lose Player!");
+          if (game.characters[character_0.id].action != turnPlayer.actionTaken 
+            && game.characters[character_1.id].action != turnPlayer.actionTaken) {
+            turnPlayer.losePlayer = true;
+            if (turnPlayer.actionTaken == 'tax') {
+              turnPlayer.coins = turnPlayer.coins - 3;
+            }
+          } else {
+            nextTurn();
           }
       } else if (character_0.active && game.characters[character_0.id].action != turnPlayer.actionTaken) {
         character_0.active = false;
+        nextTurn();
       } else if (character_1.active && game.characters[character_1.id].action != turnPlayer.actionTaken) {
         character_1.active = false;
+        nextTurn();
       } else {
-        game.players[playerid].cLoosePlayer = true;
+        game.players[playerid].losePlayer = true;
       }
     }
 
-    // reset cResponded
-    cRespondedReset();
-
-    nextTurn();
+    // reset passed
+    passedReset();
     
     setGame({
       ...game,
       players : [...game.players],
       characters : [...game.characters]
     });
-    setGameAPI();
-
 
     console.log("Challenge-- after setGame: ")
     console.log(game);
@@ -264,10 +263,10 @@ function Player() {
 
   function pass(e) {
     e.preventDefault();
-    game.cResponded = game.cResponded + 1;
-    game.players[playerid].cResponded = true;
+    game.passed = game.passed + 1;
+    game.players[playerid].passed = true;
     
-    if (game.cResponded == game.numPlayers - 1){
+    if (game.passed == game.numPlayers - 1){
       nextTurn();
     }
 
@@ -276,29 +275,94 @@ function Player() {
       players : [...game.players],
       characters : [...game.characters]
     });
-    setGameAPI();
 
+  }
+
+  function getNestedObject(nestedObj, pathArr) {
+    return pathArr.reduce((obj, key) =>
+        (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);    
+  }
+
+  function handleLoseCharChange(e) {
+    e.preventDefault();
+    setLoseCharId(e.target.value);
+  }
+
+  function handleLoseCharSubmit(e) {
+    e.preventDefault();
+    console.log("^^^^^^^^^^^^^^^^^^^^^^^^^ ", loseCharId);
+    game.players[playerid].characters[parseInt(loseCharId)].active = false;
+    game.players[playerid].losePlayer = false;
+    nextTurn();
+    setGame({
+      ...game,
+      players : [...game.players],
+      characters : [...game.characters]
+    });
   }
   
   
   const coins = useGetNestedObject(game, ['players', playerid, 'coins']);
   const turn = useGetNestedObject(game, ['players', playerid, 'turn']) ? "Your turn!" : "";
+  const losePlayer = useGetNestedObject(game, ['players', playerid, 'losePlayer']);
+  const passed = useGetNestedObject(game, ['players', playerid, 'passed']);
+  const challenged = useGetNestedObject(game, ['players', playerid, 'challenge']);
+
   const character_0 =  useGetNestedObject(game, ['players', playerid, 'characters', 0, "id"]); 
   const character_1 =  useGetNestedObject(game, ['players', playerid, 'characters', 1, "id"]);
   const character_0_name = useGetNestedObject(game, ['characters', character_0, 'name']);
   const character_1_name = useGetNestedObject(game, ['characters', character_1, 'name']); 
+  const character_0_active = useGetNestedObject(game, ['players', playerid, 'characters', 0, "active"]);
+  const character_1_active = useGetNestedObject(game, ['players', playerid, 'characters', 1, "active"]);
+
+
   const can_challenge = challenge_actions.includes(useGetNestedObject(game, ['players', game.pTurnId, 'actionTaken']))
   const can_block = block_actions.includes(useGetNestedObject(game, ['players', game.pTurnId, 'actionTaken']))
-  const passed = useGetNestedObject(game, ['players', playerid, 'cResponded']);
+  
+  const someoneLosePlayer = false;
+  let i = 0;
+  while (someoneLosePlayer && i < game.numPlayers) {
+    if (getNestedObject(game, ['players', i, 'losePlayer']) == true) {
+      someoneLosePlayer = true;
+      i = i + 1;
+      break;
+    }
+  }
+
   console.log("can_challenge: ", can_challenge);
   console.log("PPPassed: ",passed);
 
   useInterval(async () => {
     console.log("Polling Game")
     return await getGameAPI();
-  }, 7000);
+  }, 5000);
 
-  if (turn && !game.challenge) {
+  if (losePlayer && character_0_active && character_1_active){
+    return (
+    <div>
+    <div>HEY YOU LOSE A PLAYER!</div>
+    <form onSubmit={handleLoseCharSubmit}>
+      <input
+        type="radio"
+        value="0"
+        name={character_0_name}
+        checked={loseCharId == 0}
+        onChange={handleLoseCharChange}
+      /> {character_0_name}
+      <input
+        type="radio"
+        value="1"
+        name={character_1_name}
+        checked={loseCharId == 1}
+        onChange={handleLoseCharChange}
+      /> {character_1_name}
+      <button className="btn btn-default" type="submit">Submit</button>
+    </form>
+    </div>
+    // <Character ></Character>
+    );}
+
+  else if (turn && !game.challenge) {
     return (
       <div>
       
@@ -312,9 +376,9 @@ function Player() {
       <button onClick={coop}>Coop!</button>
 
       <h2>Characters</h2>
-      <div>{character_0_name}</div>
-      <div>{character_1_name}</div>
-    
+      <div>{character_0_name} { (character_0_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+      <div>{character_1_name} { (character_1_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+      
     </div>
     )
   } else if (game.challenge && !turn) {
@@ -325,14 +389,14 @@ function Player() {
         <h1>Player Page {playeridURL} </h1>        
         <h2>You have {coins} coins </h2>
 
-        { (can_challenge) ? <button onClick={challenge}>Challenge</button> : null }
-        { (can_block) ? <button onClick={challenge}>Block</button> : null }
+        { (can_challenge && !challenged && !passed) ? <button onClick={challenge}>Challenge</button> : null }
+        { (can_block && !challenged && !passed) ? <button onClick={challenge}>Block</button> : null }
         {/* <button onClick={challenge}>Counteract</button> */}
         { !(passed) ? <button onClick={pass}>Pass</button> : null }
 
         <h2>Characters</h2>
-        <div>{character_0_name}</div>
-        <div>{character_1_name}</div>
+        <div>{character_0_name} { (character_0_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+        <div>{character_1_name} { (character_1_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
       
       </div>
     );
@@ -344,9 +408,9 @@ function Player() {
         <h2>You have {coins} coins </h2>
 
         <h2>Characters</h2>
-        <div>{character_0_name}</div>
-        <div>{character_1_name}</div>
-      
+        <div>{character_0_name} { (character_0_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+        <div>{character_1_name} { (character_1_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+     
       </div>
     );
   }
