@@ -207,55 +207,76 @@ function Player() {
     }
   }
 
+  function block(e) {
+    e.preventDefault();
+    console.log("***BLOCK***");
+
+    let turnPlayer = game.players[game.pTurnId];
+    let character_0 =  turnPlayer.characters[0]; 
+    let character_1 =  turnPlayer.characters[1];
+    let turnPlayer_has_duke = false
+
+    if (character_0.name == 'duke' && character_0.active 
+    || character_1.name =='duke' && character_1.active) {
+      turnPlayer_has_duke = true;
+    }
+
+    if (can_block) {
+      if (turnPlayer.actionTaken == 'aid' && !turnPlayer_has_duke)
+      {
+        turnPlayer.coins = turnPlayer.coins - 2;
+      }
+      nextTurn();
+      setGame({
+        ...game,
+        players : [...game.players],
+        characters : [...game.characters]
+      });
+    }
+  }
+
+
   function challenge(e) {
     e.preventDefault();
 
-    console.log("***CHALLENGE***")
-    // game.challenge = false;
-
-    // // challenging player whose turn it is.
-    // game.players[playerid].challenge = true;
-    // // game.players[playerid].passed = true;
-
+    console.log("***CHALLENGE***");
 
     let turnPlayer = game.players[game.pTurnId];
-
     let character_0 =  turnPlayer.characters[0]; 
     let character_1 =  turnPlayer.characters[1];
     
     if (can_challenge) {
-      if (character_0.active && character_1.active) {
-          console.log("*** Lose Player!");
-          if (game.characters[character_0.id].action != turnPlayer.actionTaken 
-            && game.characters[character_1.id].action != turnPlayer.actionTaken) {
-            turnPlayer.losePlayer = true;
-            if (turnPlayer.actionTaken == 'tax') {
-              turnPlayer.coins = turnPlayer.coins - 3;
-            }
-          } else {
-            nextTurn();
-          }
-      } else if (character_0.active && game.characters[character_0.id].action != turnPlayer.actionTaken) {
+      if (character_0.active && character_1.active
+      && game.characters[character_0.id].action != turnPlayer.actionTaken 
+      && game.characters[character_1.id].action != turnPlayer.actionTaken) {
+        console.log("Challenge: SUCCESS Lose Player!, both are active");
+        turnPlayer.losePlayer = true;
+        if (turnPlayer.actionTaken == 'tax') {
+          turnPlayer.coins = turnPlayer.coins - 3;
+        }
+      } else if (character_0.active && game.characters[character_0.id].action != turnPlayer.actionTaken
+        && !character_1_active) {
+        console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
         character_0.active = false;
         nextTurn();
-      } else if (character_1.active && game.characters[character_1.id].action != turnPlayer.actionTaken) {
+      } else if (character_1.active && game.characters[character_1.id].action != turnPlayer.actionTaken && !character_0_active) {
+        console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
         character_1.active = false;
         nextTurn();
       } else {
+        console.log("Challenger: lose player!!");
         game.players[playerid].losePlayer = true;
+        
       }
     }
-
-    // reset passed
-    passedReset();
-    
+      // reset passed
+    passedReset();      
     setGame({
       ...game,
       players : [...game.players],
       characters : [...game.characters]
     });
-
-    console.log("Challenge-- after setGame: ")
+    console.log("Challenge: after setGame: ")
     console.log(game);
     // console.log("game.players[playerid].challenge: ", game.players[playerid].challenge)
 
@@ -390,7 +411,7 @@ function Player() {
         <h2>You have {coins} coins </h2>
 
         { (can_challenge && !challenged && !passed) ? <button onClick={challenge}>Challenge</button> : null }
-        { (can_block && !challenged && !passed) ? <button onClick={challenge}>Block</button> : null }
+        { (can_block && !challenged && !passed) ? <button onClick={block}>Block</button> : null }
         {/* <button onClick={challenge}>Counteract</button> */}
         { !(passed) ? <button onClick={pass}>Pass</button> : null }
 
