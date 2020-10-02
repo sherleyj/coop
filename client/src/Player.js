@@ -23,23 +23,24 @@ function Player() {
   const challenge_actions = ['tax','assassinate','steal','exchange'];
   const block_actions = ['aid','steal','assassinate'];
   const [loseCharId, setLoseCharId] = useState(0); 
+  const [stealFrom, setstealFrom] = useState(0); 
 
-  console.log("game.challenge: ", game.challenge);
-  console.log("game.passed", game.passed);
+
+  // console.log("game.challenge: ", game.challenge);
+  // console.log("game.passed", game.passed);
 
   useEffect (() => {
-    if (!game.gameId || game.gameId != gameidURL || Object.entries(game).length === 0){
-        console.log("PLAYER: game not set, grabbing it! ", gameidURL );
-        game.gameId = gameidURL;
-        setGame(game);
-        getGameAPI();
-    }
-
+    console.log("PLAYER: game not set, grabbing it! ", gameidURL ); 
+    getGameAPI();
   }, []);
 
-  useEffect (() => {
-    setGameAPI();
-  }, [game]);
+  // useEffect (() => {
+  //   if (Object.entries(game).length !== 0){
+  //     setGameAPI();
+  //   }
+  // }, [game]);
+
+
 
   const getGameAPI = async () => {
     try {
@@ -54,7 +55,7 @@ function Player() {
           characters : [...gameFromAPI.characters]
         });
 
-        console.log("getGame, gameFromAPI:", gameFromAPI)
+        // console.log("getGame, gameFromAPI:", gameFromAPI)
     } catch (e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -69,7 +70,7 @@ function Player() {
         body: JSON.stringify(game)
       };
 
-      console.log("POST!! coins: ", game.players[playerid].coins);
+      console.log("POST! posting game: ", game);
 
       const data = await fetch('http://localhost:9000/setGame', requestOptions);
       const gameFromAPI = await data.json();
@@ -81,6 +82,15 @@ function Player() {
         return <div>Error: {e.message}</div>;
     }
   };  
+
+  function updateGame() {
+    setGame({
+      ...game,
+      players : [...game.players],
+      characters : [...game.characters]
+    })
+    setGameAPI();
+  }
 
   function nextTurn() {
     game.players[game.pTurnId].turn = false;
@@ -114,13 +124,9 @@ function Player() {
       
       nextTurn();
 
-      setGame({
-        ...game,
-        players : [...game.players],
-        characters : [...game.characters]
-      })
+    updateGame();
 
-      // console.log("income, now have: ", game.players[playerid].coins );
+      //console.log("income, now have: ", game.players[playerid].coins );
     }
   }
 
@@ -134,13 +140,9 @@ function Player() {
       //challenge mode for challenge or block
       game.challenge = true;
 
-      setGame({
-        ...game,
-        players : [...game.players],
-        characters : [...game.characters]
-      })
+    updateGame();
 
-      // console.log("aid, now have: ", game.players[playerid].coins );
+      //console.log("aid, now have: ", game.players[playerid].coins );
     }
   }
 
@@ -158,13 +160,9 @@ function Player() {
       //challenge mode
       game.challenge = true;
 
-      setGame({
-        ...game,
-        players : [...game.players],
-        characters : [...game.characters]
-      })
+    updateGame();
 
-      // console.log("tax, now have: ", game.players[playerid].coins );
+      //console.log("tax, now have: ", game.players[playerid].coins );
     }
   }
 
@@ -177,36 +175,27 @@ function Player() {
 
       nextTurn();
 
-      setGame({
-        ...game,
-        players : [...game.players],
-        characters : [...game.characters]
-      })
+    updateGame();
 
-      // console.log("coop, now have: ", game.players[playerid].coins );
+      //console.log("coop, now have: ", game.players[playerid].coins );
     }
   }
 
   function steal(e) {
     e.preventDefault();
     if (game.players[playerid].turn && !game.challenge) {
-      const coins = game.players[playerid].coins - 7;
-      game.players[playerid].coins = coins; 
       game.players[playerid].actionTaken = "steal";
 
       //challenge mode
       game.challenge = true;
 
-      setGame({
-        ...game,
-        players : [...game.players],
-        characters : [...game.characters]
-      })
+    updateGame();
 
-      // console.log("steal, now have: ", game.players[playerid].coins );
+      //console.log("steal, now have: ", game.players[playerid].coins );
     }
   }
 
+  // TODO: Can one Duke block another Duke's foreign aid?
   function block(e) {
     e.preventDefault();
     console.log("***BLOCK***");
@@ -232,14 +221,15 @@ function Player() {
         players : [...game.players],
         characters : [...game.characters]
       });
-    }
+      setGameAPI();}
+
   }
 
 
   function challenge(e) {
     e.preventDefault();
 
-    console.log("***CHALLENGE***");
+    // console.log("***CHALLENGE***");
 
     let turnPlayer = game.players[game.pTurnId];
     let character_0 =  turnPlayer.characters[0]; 
@@ -249,36 +239,35 @@ function Player() {
       if (character_0.active && character_1.active
       && game.characters[character_0.id].action != turnPlayer.actionTaken 
       && game.characters[character_1.id].action != turnPlayer.actionTaken) {
-        console.log("Challenge: SUCCESS Lose Player!, both are active");
+        // console.log("Challenge: SUCCESS Lose Player!, both are active");
         turnPlayer.losePlayer = true;
         if (turnPlayer.actionTaken == 'tax') {
           turnPlayer.coins = turnPlayer.coins - 3;
         }
       } else if (character_0.active && game.characters[character_0.id].action != turnPlayer.actionTaken
         && !character_1_active) {
-        console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
+        // console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
         character_0.active = false;
+        turnPlayer.active = false;
         nextTurn();
       } else if (character_1.active && game.characters[character_1.id].action != turnPlayer.actionTaken && !character_0_active) {
-        console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
+        // console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
         character_1.active = false;
+        turnPlayer.active = false;
         nextTurn();
       } else {
-        console.log("Challenger: lose player!!");
+        // console.log("Challenger: lose player!!");
         game.players[playerid].losePlayer = true;
         
       }
     }
       // reset passed
     passedReset();      
-    setGame({
-      ...game,
-      players : [...game.players],
-      characters : [...game.characters]
-    });
-    console.log("Challenge: after setGame: ")
-    console.log(game);
-    // console.log("game.players[playerid].challenge: ", game.players[playerid].challenge)
+    updateGame();
+      
+      // console.log("Challenge: after setGame: ")
+    // console.log(game);
+    //console.log("game.players[playerid].challenge: ", game.players[playerid].challenge)
 
   }
 
@@ -291,11 +280,7 @@ function Player() {
       nextTurn();
     }
 
-    setGame({
-      ...game,
-      players : [...game.players],
-      characters : [...game.characters]
-    });
+    updateGame();
 
   }
 
@@ -315,17 +300,34 @@ function Player() {
     game.players[playerid].characters[parseInt(loseCharId)].active = false;
     game.players[playerid].losePlayer = false;
     nextTurn();
-    setGame({
-      ...game,
-      players : [...game.players],
-      characters : [...game.characters]
-    });
+    updateGame();
+  }
+
+
+  function handleStealChange(e) {
+    e.preventDefault();
+    setstealFrom(e.target.value);
+    console.log("in handleStealChange ", loseCharId);
+  }
+
+  function handleStealSubmit(e) {
+    e.preventDefault();
+    let stealFromCoins = getNestedObject(game, ['players', stealFrom, 'coins']);
+    let coins =  getNestedObject(game, ['players', playerid, 'coins']);
+    console.log("Handle the steal!!, stealing from player id: ",  stealFrom);
+    game.players[stealFrom].coins = stealFromCoins - 2;
+    game.players[playerid].coins = coins + 2;
+    nextTurn();
+    updateGame();
+
+
   }
   
   
-  const coins = useGetNestedObject(game, ['players', playerid, 'coins']);
+  let coins = useGetNestedObject(game, ['players', playerid, 'coins']);
   const turn = useGetNestedObject(game, ['players', playerid, 'turn']) ? "Your turn!" : "";
   const losePlayer = useGetNestedObject(game, ['players', playerid, 'losePlayer']);
+  const stealing = useGetNestedObject(game, ['players', playerid, 'actionTaken']) == 'steal' ? true : false;
   const passed = useGetNestedObject(game, ['players', playerid, 'passed']);
   const challenged = useGetNestedObject(game, ['players', playerid, 'challenge']);
 
@@ -335,6 +337,29 @@ function Player() {
   const character_1_name = useGetNestedObject(game, ['characters', character_1, 'name']); 
   const character_0_active = useGetNestedObject(game, ['players', playerid, 'characters', 0, "active"]);
   const character_1_active = useGetNestedObject(game, ['players', playerid, 'characters', 1, "active"]);
+  let active_players = new Array(game.numPlayers);
+    for (let i = 0; i < game.numPlayers; i++ ) {
+      active_players[i] = getNestedObject(game, ['players'], 'active')? getNestedObject(game, ['characters', character_0, 'name']) : false;
+    }
+
+  let steal_players_form = "";
+  if (game.players) {
+    steal_players_form = game.players.map( (p, i) => {
+      if (i != playerid && p.coins > 1 && p.active) {  // Add active property to player.  Make first active player checked.
+        return ( 
+          <div>
+          <input
+            type="radio"
+            value={p.id}
+            name = {p.id}
+            checked={stealFrom == p.id}
+            key = {p.id}
+            onChange={handleStealChange}
+          /> {p.id + 1}
+          </div> ) 
+      }
+    });
+  }
 
 
   const can_challenge = challenge_actions.includes(useGetNestedObject(game, ['players', game.pTurnId, 'actionTaken']))
@@ -350,11 +375,10 @@ function Player() {
     }
   }
 
-  console.log("can_challenge: ", can_challenge);
-  console.log("PPPassed: ",passed);
+  // console.log("can_challenge: ", can_challenge);
 
   useInterval(async () => {
-    console.log("Polling Game")
+    // console.log("Polling Game")
     return await getGameAPI();
   }, 5000);
 
@@ -381,8 +405,19 @@ function Player() {
     </form>
     </div>
     // <Character ></Character>
-    );}
-
+    );
+  }
+  else if (stealing && game.players[0].characters[0]) {
+    return (
+      <div>
+      <div>Pick a Player to Steal From: </div>
+      <form onSubmit={handleStealSubmit}>
+        {steal_players_form}
+      <button className="btn btn-default" type="submit">Submit</button>
+      </form>
+      </div>
+    )
+  }
   else if (turn && !game.challenge) {
     return (
       <div>
@@ -394,6 +429,7 @@ function Player() {
       <button onClick={income}>Collect Income</button>
       <button onClick={aid}>Collect Foreign Aid</button>
       <button onClick={tax}>Collect Tax</button>
+      <button onClick={steal}>Steal</button>
       <button onClick={coop}>Coop!</button>
 
       <h2>Characters</h2>

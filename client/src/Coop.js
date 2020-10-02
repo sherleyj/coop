@@ -22,14 +22,15 @@ function Coop() {
 
 
     useEffect (() => {
-        if (!game.gameId || game.gameId !== gameidURL || Object.entries(game).length === 0){
-            console.log("COOP: game not set, grabbing it! ", gameidURL );
-            game.gameId = gameidURL;
-            setGame(game);
-            getGameAPI();
-        }
-
+        console.log("PLAYER: game not set, grabbing it! ", gameidURL ); 
+        getGameAPI();
       }, []);
+    
+    //   useEffect (() => {
+    //     if (Object.entries(game).length !== 0){
+    //       setGameAPI();
+    //     }
+    //   }, [game]);
 
     const getGameAPI = async () => {
         try {
@@ -56,21 +57,41 @@ function Coop() {
         playersToRender =  game.players.map((p) => {
             let turnText = "";
             let playerid = p.id + 1;
+            let character_0 = p.characters[0];
+            let character_1 = p.characters[1];
+            let character_0_name = "";
+            let character_1_name = "";
+            if (!character_0.active) {
+                console.log("character 0 dead.", game.characters[character_0.id].name)
+                character_0_name = game.characters[character_0.id].name;
+            }
+            if (!character_1.active) {
+                console.log("character 1 dead.")
+                character_1_name = game.characters[character_1.id].name;
+            }
+
             if (p.turn) {
                 turnText = "Your turn!"
             }
             let link = "/" + gameidURL + "/player/" + playerid;
             return (
-                <div key={p.id} className="player">
-                    <Link to={link}>Player {playerid}</Link> <span>{turnText}</span>
+                <div>
+                <div key={p.id} className="player"> <Link to={link}>Player {playerid}</Link> 
+                    <span> {turnText}</span>
                     <p>Num coins: {p.coins}</p>
+                    <span>{character_0_name} </span>
+                    <span>{character_1_name} </span>
+                    <br />
+                    --------------------------------
+                    
+                </div>
                 </div>
             );
         });
     }
    
     useInterval(async () => {
-        console.log("Polling Game")
+        // console.log("Polling Game")
         return await getGameAPI();
     }, 7000);
    

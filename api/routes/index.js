@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 /* GET home page. */
 router.get('/getGame/:id', function(req, res, next) {
   const gameid = req.params.id;
-  console.log("grabbed from request parameter: " + gameid);
+  // console.log("grabbed from request parameter: " + gameid);
 
   const game = {
     "gameId": gameid,
@@ -29,7 +29,8 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
-        "losePlayer": false
+        "losePlayer": false,
+        "active": true
       },
       {
         "id": 1,
@@ -39,7 +40,8 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
-        "losePlayer": false
+        "losePlayer": false,
+        "active": true
       },
       {
         "id": 2,
@@ -49,7 +51,8 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
-        "losePlayer": false
+        "losePlayer": false,
+        "active": true
       },
       {
         "id": 3,
@@ -59,7 +62,8 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
-        "losePlayer": false
+        "losePlayer": false,
+        "active": true
       },
       {
         "id": 4,
@@ -69,7 +73,8 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
-        "losePlayer": false
+        "losePlayer": false,
+        "active": true
       },
       {
         "id": 5,
@@ -79,7 +84,8 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
-        "losePlayer": false
+        "losePlayer": false,
+        "active": true
       }
     ],
     "characters": [
@@ -119,11 +125,11 @@ router.get('/getGame/:id', function(req, res, next) {
   redis.set(gameid, JSON.stringify(game), "NX");
 
   redis.get(gameid).then(function (result) {
-    console.log("this is the result: " + result); 
+    // console.log("this is the result: " + result); 
     resJSON = JSON.parse(result);
     res.json(resJSON);
   }).catch(function (error) {
-    console.log(error);
+    // console.log(error);
   });
 
 });
@@ -132,7 +138,7 @@ router.post('/setGame', function(req, res) {
   // const gameid = req.params.id;
 
   const gameId = req.body.gameId;
-  console.log("POST! GameId: ", gameId);
+  console.log("****** POST! GameId: ", gameId);
 
   redis.set(gameId, JSON.stringify(req.body));
 
