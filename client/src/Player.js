@@ -1,9 +1,9 @@
-import React, { 
+import React, { 
   useState,
   useEffect,
   useContext,
-} from 'react';
-import './App.css';
+} from 'react';
+import './App.css';
 // import Characters from './Characters'
 import { 
   useParams,
@@ -12,8 +12,7 @@ import {
 import { GameContext } from './GameContext';
 import { useInterval, useGetNestedObject } from './Hooks'
 
-
-function Player() {
+function Player() {
 
   console.log("****** new render ******")
 
@@ -28,6 +27,8 @@ function Player() {
 
   // console.log("game.challenge: ", game.challenge);
   // console.log("game.passed", game.passed);
+
+  // TODO: Test out the steal action.  Challenge is incorrect with player 1 challenge
 
   useEffect (() => {
     console.log("PLAYER: game not set, grabbing it! ", gameidURL ); 
@@ -101,7 +102,13 @@ function Player() {
     game.challenge = false;
 
     game.passed = 0;
-    game.players.forEach((p) => {
+
+    let first = false;
+    game.players.forEach((p, i) => {
+      if (p.active && !first){
+        setstealFrom(i);
+        first = true;
+      }
       p.passed = false
     })
 
@@ -186,9 +193,13 @@ function Player() {
     if (game.players[playerid].turn && !game.challenge) {
       game.players[playerid].actionTaken = "steal";
 
-      //challenge mode
-      game.challenge = true;
-
+      game.players.forEach((p, i) => {
+        if (i != playerid) {
+          game.passed = game.passed + 1;
+          p.passed = true;
+        }
+      })
+    
     updateGame();
 
       //console.log("steal, now have: ", game.players[playerid].coins );
@@ -216,12 +227,8 @@ function Player() {
         turnPlayer.coins = turnPlayer.coins - 2;
       }
       nextTurn();
-      setGame({
-        ...game,
-        players : [...game.players],
-        characters : [...game.characters]
-      });
-      setGameAPI();}
+      updateGame();
+    }
 
   }
 
@@ -229,40 +236,67 @@ function Player() {
   function challenge(e) {
     e.preventDefault();
 
-    // console.log("***CHALLENGE***");
+    console.log("***CHALLENGE***");
 
     let turnPlayer = game.players[game.pTurnId];
     let character_0 =  turnPlayer.characters[0]; 
     let character_1 =  turnPlayer.characters[1];
+    let success = false;
     
     if (can_challenge) {
       if (character_0.active && character_1.active
       && game.characters[character_0.id].action != turnPlayer.actionTaken 
       && game.characters[character_1.id].action != turnPlayer.actionTaken) {
-        // console.log("Challenge: SUCCESS Lose Player!, both are active");
+        console.log("Challenge: SUCCESS Lose Player!, both are active");
         turnPlayer.losePlayer = true;
-        if (turnPlayer.actionTaken == 'tax') {
-          turnPlayer.coins = turnPlayer.coins - 3;
-        }
+        success = true;
+        // if (turnPlayer.actionTaken == 'tax') {
+        //   turnPlayer.coins = turnPlayer.coins - 3;
+        // }
       } else if (character_0.active && game.characters[character_0.id].action != turnPlayer.actionTaken
-        && !character_1_active) {
-        // console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
+        && !character_1.active) {
+        console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
         character_0.active = false;
         turnPlayer.active = false;
-        nextTurn();
-      } else if (character_1.active && game.characters[character_1.id].action != turnPlayer.actionTaken && !character_0_active) {
-        // console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
+        success = true;
+        // nextTurn();
+      } else if (character_1.active && game.characters[character_1.id].action != turnPlayer.actionTaken && !character_0.active) {
+        console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
         character_1.active = false;
         turnPlayer.active = false;
-        nextTurn();
+        success = true;
+        // nextTurn();
       } else {
+        // shouldn't get here
         // console.log("Challenger: lose player!!");
         game.players[playerid].losePlayer = true;
-        
       }
     }
+
+    if (success) {
+      if (turnPlayer.actionTaken == 'tax') {
+        console.log("Removing TAX");
+        turnPlayer.coins = turnPlayer.coins - 3;
+      } else if (turnPlayer.actionTaken == 'steal') {
+        console.log("Remove STEAL");
+
+        turnPlayer.coins = turnPlayer.coins - 2;
+
+        console.log("stealFrom: ", stealFrom);
+        
+        const steal_from_coins = game.players[playerid].coins;
+        game.players[playerid].coins = steal_from_coins + 2;
+
+        console.log("GAME BELOW ->")
+        console.log(game);
+      }
+    }
+
+    if (!turnPlayer.losePlayer) {
+      nextTurn();
+    }
       // reset passed
-    passedReset();      
+    // passedReset();      
     updateGame();
       
       // console.log("Challenge: after setGame: ")
@@ -276,7 +310,8 @@ function Player() {
     game.passed = game.passed + 1;
     game.players[playerid].passed = true;
     
-    if (game.passed == game.numPlayers - 1){
+    // TODO: need to active players count
+    if (game.passed == game.numPlayers - 1){  
       nextTurn();
     }
 
@@ -314,13 +349,18 @@ function Player() {
     e.preventDefault();
     let stealFromCoins = getNestedObject(game, ['players', stealFrom, 'coins']);
     let coins =  getNestedObject(game, ['players', playerid, 'coins']);
-    console.log("Handle the steal!!, stealing from player id: ",  stealFrom);
+    console.log("Stealing from player id: ",  stealFrom);
+
+    // challenge mode
+    game.challenge = true;
+
     game.players[stealFrom].coins = stealFromCoins - 2;
     game.players[playerid].coins = coins + 2;
-    nextTurn();
+    game.players[stealFrom].passed = false;
+    game.passed = game.passed - 1;
+
+    // nextTurn();
     updateGame();
-
-
   }
   
   
@@ -378,7 +418,7 @@ function Player() {
   // console.log("can_challenge: ", can_challenge);
 
   useInterval(async () => {
-    // console.log("Polling Game")
+    console.log(game)
     return await getGameAPI();
   }, 5000);
 
@@ -407,7 +447,7 @@ function Player() {
     // <Character ></Character>
     );
   }
-  else if (stealing && game.players[0].characters[0]) {
+  else if (stealing && game.players[0].characters[0] && !game.challenge) {
     return (
       <div>
       <div>Pick a Player to Steal From: </div>
@@ -440,7 +480,7 @@ function Player() {
     )
   } else if (game.challenge && !turn) {
 
-    return (
+    return (
       <div>
         
         <h1>Player Page {playeridURL} </h1>        
@@ -456,9 +496,9 @@ function Player() {
         <div>{character_1_name} { (character_1_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
       
       </div>
-    );
+    );
   } else {
-    return (
+    return (
       <div>
         
         <h1>Player Page {playeridURL} </h1>        
@@ -469,12 +509,11 @@ function Player() {
         <div>{character_1_name} { (character_1_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
      
       </div>
-    );
+    );
   }
-  
+  
 }
 
 
 
-export default Player;
-
+export default Player;
