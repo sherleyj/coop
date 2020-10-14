@@ -19,7 +19,7 @@ function Player() {
   const { gameidURL, playeridURL } = useParams(); 
   const playerid = playeridURL - 1;
   const [game, setGame] = useContext(GameContext);
-  const challenge_actions = ['tax','assassinate','steal','exchange'];
+  const challenge_actions = ['tax','assassinate','steal','exchange','block'];
   const block_actions = ['aid','steal','assassinate'];
   const [loseCharId, setLoseCharId] = useState(0); 
   const [stealFrom, setstealFrom] = useState(0); 
@@ -28,7 +28,7 @@ function Player() {
   // console.log("game.challenge: ", game.challenge);
   // console.log("game.passed", game.passed);
 
-  // TODO: Test out the steal action.  Challenge is incorrect with player 1 challenge
+  // TODO: Can one Duke block another Duke's foreign aid?
 
   useEffect (() => {
     console.log("PLAYER: game not set, grabbing it! ", gameidURL ); 
@@ -93,9 +93,20 @@ function Player() {
     setGameAPI();
   }
 
+  // TODO: skip inactive players when setting next players turn.
   function nextTurn() {
     game.players[game.pTurnId].turn = false;
     game.players[game.pTurnId].actionTaken = "";
+    game.players[playerid].actionTaken = "";
+
+    let blockerId = game.players[game.pTurnId].blockedBy;
+    if (blockerId){
+      let blockingPlayer = game.players[blockerId];
+      blockingPlayer.actionTaken = "";
+    }
+
+    game.players[game.pTurnId].blockedBy = "";
+
     game.players[(game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1].turn = true;
     game.pTurnId = (game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1;
 
@@ -114,10 +125,15 @@ function Player() {
 
   }
 
-  function passedReset() {
-    game.players.forEach( (p) => {
-      p.passed = false; // rename to pass
+  function passedSet(id) {
+    game.players.forEach( (p, i) => {
+      if (i != id) {
+        p.passed = true; // rename to pass
+      } else {
+        p.passed = false;
+      }
     })
+    game.passed = game.numPlayers - 1;
   }
       // // game.players[playerid].passed = true;
 
@@ -192,13 +208,7 @@ function Player() {
     e.preventDefault();
     if (game.players[playerid].turn && !game.challenge) {
       game.players[playerid].actionTaken = "steal";
-
-      game.players.forEach((p, i) => {
-        if (i != playerid) {
-          game.passed = game.passed + 1;
-          p.passed = true;
-        }
-      })
+      passedSet(playerid);
     
     updateGame();
 
@@ -206,63 +216,66 @@ function Player() {
     }
   }
 
-  // TODO: Can one Duke block another Duke's foreign aid?
   function block(e) {
     e.preventDefault();
     console.log("***BLOCK***");
 
     let turnPlayer = game.players[game.pTurnId];
-    let character_0 =  turnPlayer.characters[0]; 
-    let character_1 =  turnPlayer.characters[1];
-    let turnPlayer_has_duke = false
+    let blockingPlayer = game.players[playerid];
 
-    if (character_0.name == 'duke' && character_0.active 
-    || character_1.name =='duke' && character_1.active) {
-      turnPlayer_has_duke = true;
-    }
+    game.players[playerid].actionTaken = 'block';
+    turnPlayer.blockedBy = playerid;
+    game.challenge = true
 
     if (can_block) {
-      if (turnPlayer.actionTaken == 'aid' && !turnPlayer_has_duke)
-      {
+      if (turnPlayer.actionTaken == 'aid') {
         turnPlayer.coins = turnPlayer.coins - 2;
       }
-      nextTurn();
+      if (turnPlayer.actionTaken == 'steal') {
+        turnPlayer.coins = turnPlayer.coins - 2;
+        blockingPlayer.coins = blockingPlayer.coins + 2;
+        console.log("turnplayer coins: " + turnPlayer.coins + " blocking player coins: " + blockingPlayer.coins);
+      }
+
+      // nextTurn();
+      passedSet(game.pTurnId);
       updateGame();
     }
 
   }
 
-
+  // When challenging a block counteraction, playerid = game.pturnid
   function challenge(e) {
     e.preventDefault();
 
     console.log("***CHALLENGE***");
 
     let turnPlayer = game.players[game.pTurnId];
-    let character_0 =  turnPlayer.characters[0]; 
-    let character_1 =  turnPlayer.characters[1];
+    let c_0 =  turnPlayer.characters[0]; 
+    let c_1 =  turnPlayer.characters[1];
     let success = false;
     
     if (can_challenge) {
-      if (character_0.active && character_1.active
-      && game.characters[character_0.id].action != turnPlayer.actionTaken 
-      && game.characters[character_1.id].action != turnPlayer.actionTaken) {
+      if (c_0.active && c_1.active
+      && game.characters[c_0.id].action != turnPlayer.actionTaken 
+      && game.characters[c_1.id].action != turnPlayer.actionTaken) {
         console.log("Challenge: SUCCESS Lose Player!, both are active");
         turnPlayer.losePlayer = true;
         success = true;
+        console.log("success: ", success);
         // if (turnPlayer.actionTaken == 'tax') {
         //   turnPlayer.coins = turnPlayer.coins - 3;
         // }
-      } else if (character_0.active && game.characters[character_0.id].action != turnPlayer.actionTaken
-        && !character_1.active) {
+      } else if (c_0.active && game.characters[c_0.id].action != turnPlayer.actionTaken
+        && !c_1.active) {
         console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
-        character_0.active = false;
+        c_0.active = false;
         turnPlayer.active = false;
         success = true;
         // nextTurn();
-      } else if (character_1.active && game.characters[character_1.id].action != turnPlayer.actionTaken && !character_0.active) {
+      } else if (c_1.active && game.characters[c_1.id].action != turnPlayer.actionTaken && !c_0.active) {
         console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
-        character_1.active = false;
+        c_1.active = false;
         turnPlayer.active = false;
         success = true;
         // nextTurn();
@@ -277,6 +290,7 @@ function Player() {
       if (turnPlayer.actionTaken == 'tax') {
         console.log("Removing TAX");
         turnPlayer.coins = turnPlayer.coins - 3;
+        // nextTurn();
       } else if (turnPlayer.actionTaken == 'steal') {
         console.log("Remove STEAL");
 
@@ -292,9 +306,72 @@ function Player() {
       }
     }
 
-    if (!turnPlayer.losePlayer) {
-      nextTurn();
+    updateGame();
+
+  }
+
+    // When challenging a block counteraction, playerid = game.pturnid
+  function challenge_block(e) {
+    e.preventDefault();
+
+    console.log("***CHALLENGE BLOCK***");
+
+    let blockingPlayer = game.players[game.players[game.pTurnId].blockedBy];
+
+    let turnPlayer = game.players[game.pTurnId];
+    let c_0 =  blockingPlayer.characters[0]; 
+    let c_1 =  blockingPlayer.characters[1];
+    let success = false;
+    
+    console.log("player 0: ", c_0.id);
+    console.log("player 1: ", c_1.id);
+
+    if (can_block) {
+      if (c_0.active && c_1.active
+      && game.characters[c_0.id].block != turnPlayer.actionTaken 
+      && game.characters[c_1.id].block != turnPlayer.actionTaken) {
+        console.log("Challenge Block: SUCCESS Lose Player!, both are active");
+        blockingPlayer.losePlayer = true;
+        success = true;
+        // if (blockingPlayer.actionTaken == 'tax') {
+        //   blockingPlayer.coins = blockingPlayer.coins - 3;
+        // }
+      } else if (c_0.active && game.characters[c_0.id].block != turnPlayer.actionTaken
+        && !c_1.active) {
+        console.log("Challenge Block: SUCCESS Lose Player!, only 0 is active");
+        c_0.active = false;
+        blockingPlayer.active = false;
+        success = true;
+        // nextTurn();
+      } else if (c_1.active && game.characters[c_1.id].block != turnPlayer.actionTaken && !c_0.active) {
+        console.log("Challenge Block: SUCCESS Lose Player!, only 1 is active");
+        c_1.active = false;
+        blockingPlayer.active = false;
+        success = true;
+        // nextTurn();
+      } else {
+        // challenge failed.
+        // player that challenged the block (the player whose turn it currently is) loses a player!
+        console.log("*** players id lose player!!!")
+        game.players[playerid].losePlayer = true;
+      }
     }
+
+    if (success) {
+      if (blockingPlayer.actionTaken == 'steal') {
+        console.log("BLOCK FAILED. giving $ back");
+        blockingPlayer.coins = blockingPlayer.coins - 2;        
+        turnPlayer.coins = turnPlayer.coins + 2;
+
+        console.log("GAME BELOW ->")
+        console.log(game);
+      }
+    }
+
+    // if (!blockingPlayer.losePlayer) {
+    //   console.log("called nextTurn()");
+    //   nextTurn();
+    // }
       // reset passed
     // passedReset();      
     updateGame();
@@ -311,7 +388,7 @@ function Player() {
     game.players[playerid].passed = true;
     
     // TODO: need to active players count
-    if (game.passed == game.numPlayers - 1){  
+    if (game.passed == game.numPlayers){  
       nextTurn();
     }
 
@@ -356,8 +433,9 @@ function Player() {
 
     game.players[stealFrom].coins = stealFromCoins - 2;
     game.players[playerid].coins = coins + 2;
+    game.players[playerid].passed = true;
     game.players[stealFrom].passed = false;
-    game.passed = game.passed - 1;
+    // game.passed = game.passed - 1;
 
     // nextTurn();
     updateGame();
@@ -370,6 +448,10 @@ function Player() {
   const stealing = useGetNestedObject(game, ['players', playerid, 'actionTaken']) == 'steal' ? true : false;
   const passed = useGetNestedObject(game, ['players', playerid, 'passed']);
   const challenged = useGetNestedObject(game, ['players', playerid, 'challenge']);
+
+  const blocked = useGetNestedObject(game, ['players', playerid, 'blockedBy']) === "" ? false : true;
+  console.log("blocked: ", blocked);
+  console.log("blocked by: ", useGetNestedObject(game, ['players', playerid, 'blockedBy']));
 
   const character_0 =  useGetNestedObject(game, ['players', playerid, 'characters', 0, "id"]); 
   const character_1 =  useGetNestedObject(game, ['players', playerid, 'characters', 1, "id"]);
@@ -422,7 +504,7 @@ function Player() {
     return await getGameAPI();
   }, 5000);
 
-  if (losePlayer && character_0_active && character_1_active){
+  if (losePlayer && character_0_active && character_1_active){ // Loosing one of two players. Form to choose which to loose.
     return (
     <div>
     <div>HEY YOU LOSE A PLAYER!</div>
@@ -447,7 +529,7 @@ function Player() {
     // <Character ></Character>
     );
   }
-  else if (stealing && game.players[0].characters[0] && !game.challenge) {
+  else if (stealing && game.players[0].characters[0] && !game.challenge) { // steal form.  Choose who to steal from.
     return (
       <div>
       <div>Pick a Player to Steal From: </div>
@@ -458,7 +540,7 @@ function Player() {
       </div>
     )
   }
-  else if (turn && !game.challenge) {
+  else if (turn && !game.challenge) { // start turn, choose action to take.
     return (
       <div>
       
@@ -478,7 +560,7 @@ function Player() {
       
     </div>
     )
-  } else if (game.challenge && !turn) {
+  } else if (game.challenge && !turn) { // Chance to block aide, challenge action, or block.
 
     return (
       <div>
@@ -486,9 +568,27 @@ function Player() {
         <h1>Player Page {playeridURL} </h1>        
         <h2>You have {coins} coins </h2>
 
+        <span>Challenge/Counteraction/Pass</span> <br></br>
         { (can_challenge && !challenged && !passed) ? <button onClick={challenge}>Challenge</button> : null }
         { (can_block && !challenged && !passed) ? <button onClick={block}>Block</button> : null }
         {/* <button onClick={challenge}>Counteract</button> */}
+        { !(passed) ? <button onClick={pass}>Pass</button> : null }
+
+        <h2>Characters</h2>
+        <div>{character_0_name} { (character_0_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+        <div>{character_1_name} { (character_1_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+      
+      </div>
+    );
+  } else if (game.challenge && turn && blocked) { // Chance to challenge counteraction (block).
+    return (
+      <div>
+        
+        <h1>Player Page {playeridURL} </h1>        
+        <h2>You have {coins} coins </h2>
+        <span>Challenge or Pass the Block</span> <br></br>
+
+        { (!challenged && !passed) ? <button onClick={challenge_block}>Challenge</button> : null }
         { !(passed) ? <button onClick={pass}>Pass</button> : null }
 
         <h2>Characters</h2>

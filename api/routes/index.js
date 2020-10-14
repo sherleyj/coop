@@ -29,6 +29,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
+        "blockedBy":"",
         "losePlayer": false,
         "active": true
       },
@@ -40,6 +41,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
+        "blockedBy":"",
         "losePlayer": false,
         "active": true
       },
@@ -51,6 +53,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
+        "blockedBy":"",
         "losePlayer": false,
         "active": true
       },
@@ -62,6 +65,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
+        "blockedBy":"",
         "losePlayer": false,
         "active": true
       },
@@ -73,6 +77,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
+        "blockedBy":"",
         "losePlayer": false,
         "active": true
       },
@@ -84,6 +89,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "challenge": false,
         "passed": false,
         "actionTaken":"",
+        "blockedBy":"",
         "losePlayer": false,
         "active": true
       }
