@@ -183,15 +183,6 @@ function Player() {
     }
   }
 
-  function steal(e) {
-    e.preventDefault();
-    if (game.players[playerid].turn && !game.challenge) {
-      game.players[playerid].actionTaken = "steal";
-      passedSet(playerid);
-      updateGame();
-    }
-  }
-
   function block(e) {
     e.preventDefault();
     console.log("***BLOCK***");
@@ -539,7 +530,7 @@ function Player() {
       <button onClick={action} name="aid">Collect Foreign Aid</button>
       <button onClick={action} name="tax">Collect Tax</button>
       {/* LEFT OFF HERE, should on click event be steal or action? */}
-      <button onClick={steal} name="steal">Steal</button>
+      <button onClick={action} name="steal">Steal</button>
       <button onClick={coop}>Coop!</button>
 
       <h2>Characters</h2>
