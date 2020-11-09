@@ -25,7 +25,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 0,
         "characters": [{"id": 2, "active": true}, {"id": 1, "active": true}],
-        "coins": 2,
+        "coins": 8,
         "turn": true,
         "challenge": false,
         "passed": false,
@@ -37,7 +37,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 1,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
-        "coins": 2,
+        "coins": 8,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -49,7 +49,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 2,
         "characters": [{"id": 3, "active": true}, {"id": 1, "active": true}],
-        "coins": 2,
+        "coins": 8,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -61,7 +61,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 3,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
-        "coins": 2,
+        "coins": 8,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -73,7 +73,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 4,
         "characters":[{"id": 4, "active": true}, {"id": 1, "active": true}],
-        "coins": 2,
+        "coins": 8,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -85,7 +85,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 5,
         "characters": [{"id": 2, "active": true}, {"id": 0, "active": true}],
-        "coins": 2,
+        "coins": 8,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -190,17 +190,33 @@ router.post('/takeTurn', function(req, res) {
         game.players[playerId].actionTaken = "steal";
         game = passedSet(game, playerId);
         if (actOnPlayer) {
-          console.log("act on player: ", actOnPlayer);
-          console.log(game);
-          let stealFromCoins = game.players[actOnPlayer].coins;
-          let coins =  game.players[playerId].coins;
-
-          game.players[actOnPlayer].coins = stealFromCoins - 2;
-          game.players[playerId].coins = coins + 2;
+          game.players[actOnPlayer].coins -= 2;
+          game.players[playerId].coins += 2;
           game.players[playerId].passed = true;
           game.players[actOnPlayer].passed = false;
           game.challenge = true;
         }
+        break;
+      case "coop":
+        game.players[playerId].actionTaken = "coop";
+        if (actOnPlayer) {
+          game.players[playerId].coins -= 7; 
+          if (game.players[actOnPlayer].characters[0].active && game.players[actOnPlayer].characters[0].active) {
+            game.players[actOnPlayer].losePlayer = true;
+          } else  {
+            if (!game.players[actOnPlayer].characters[0].active) {
+              game.players[actOnPlayer].characters[1].active = false;
+            } else {
+              game.players[actOnPlayer].characters[0].active = false;
+            }
+            game.players[actOnPlayer].active = false
+            game.activePlayers -= 1;
+            game = nextTurn(game, playerId);
+          }
+        }
+
+        console.log("game.players[playerId].coins: ", game.players[playerId].coins);
+        console.log(game);
         break;
     }
     
@@ -244,23 +260,22 @@ function nextTurn(game, playerId) {
 
   game.players[game.pTurnId].blockedBy = "";
 
-  game.players[(game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1].turn = true;
   game.pTurnId = (game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1;
+  while(!game.players[game.pTurnId].active) {
+    game.pTurnId = (game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1;
+  }
+  game.players[game.pTurnId].turn = true;
+
 
   game.challenge = false;
 
   game.passed = 0;
 
+  game.players.forEach((p, i) => {
+    p.passed = false
+  })
+  
   return game;
-  // let first = false;
-  // game.players.forEach((p, i) => {
-  //   if (p.active && !first){
-  //     setstealFrom(i);
-  //     first = true;
-  //   }
-  //   p.passed = false
-  // })
-
 }
 
 function passedSet(game, id) {

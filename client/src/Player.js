@@ -22,7 +22,8 @@ function Player() {
   const challenge_actions = ['tax','assassinate','steal','exchange','block'];
   const block_actions = ['aid','steal','assassinate'];
   const [loseCharId, setLoseCharId] = useState(0); 
-  const [stealFrom, setstealFrom] = useState(0); 
+  const [actOnPlayer, setActOnPlayer] = useState(0); 
+  // const [coopPlayer, setCoopPlayer] = useState(0);
 
 
   // console.log("game.challenge: ", game.challenge);
@@ -107,9 +108,12 @@ function Player() {
 
     game.players[game.pTurnId].blockedBy = "";
 
-    game.players[(game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1].turn = true;
     game.pTurnId = (game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1;
-
+    while(!game.players[game.pTurnId].active) {
+      game.pTurnId = (game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1;
+    }
+    game.players[game.pTurnId].turn = true;
+    
     game.challenge = false;
 
     game.passed = 0;
@@ -117,7 +121,7 @@ function Player() {
     let first = false;
     game.players.forEach((p, i) => {
       if (p.active && !first){
-        setstealFrom(i);
+        setActOnPlayer(i);
         first = true;
       }
       p.passed = false
@@ -144,8 +148,9 @@ function Player() {
       let turn = {};
       const action = e.target.name;
       console.log("ACTION value: ", e.target.value);
-      if (action == "steal" && stealFrom) {
-        turn = {"gameId": gameidURL,  "playerId": playerid, "action": action, "game": game, "actOnPlayer": stealFrom};
+
+      if (action == "steal" || action == "coop" && actOnPlayer) {
+        turn = {"gameId": gameidURL,  "playerId": playerid, "action": action, "game": game, "actOnPlayer": actOnPlayer};
       } else {
         turn = {"gameId": gameidURL,  "playerId": playerid, "action": action, "game": game, "actOnPlayer": null};
       }
@@ -167,19 +172,6 @@ function Player() {
           console.log(e);
           return <div>Error: {e.message}</div>;
       }
-    }
-  }
-
-
-  // TODO
-  function coop(e) {
-    e.preventDefault();
-    if (game.players[playerid].turn && !game.challenge) {
-      const coins = game.players[playerid].coins - 7;
-      game.players[playerid].coins = coins; 
-      game.players[playerid].actionTaken = "coop";
-      nextTurn();
-      updateGame();
     }
   }
 
@@ -264,8 +256,6 @@ function Player() {
         console.log("Remove STEAL");
 
         turnPlayer.coins = turnPlayer.coins - 2;
-
-        console.log("stealFrom: ", stealFrom);
         
         const steal_from_coins = game.players[playerid].coins;
         game.players[playerid].coins = steal_from_coins + 2;
@@ -385,44 +375,55 @@ function Player() {
   }
 
 
-  function handleStealChange(e) {
+  function handleActOnChange(e) {
     e.preventDefault();
-    setstealFrom(e.target.value);
-    console.log("in handleStealChange ", stealFrom);
+    setActOnPlayer(e.target.value);
+    console.log("in handleStealChange ", actOnPlayer);
   }
 
-  function handleStealSubmit(e) {
+  function handleActOnSubmit(e) {
     e.preventDefault();
     console.log("in handleStealSubmit: e.target.name: " + e.target.name);
     console.log("in handleStealSubmit: e.target.value: " + e.target.value);
     action(e);
-    setstealFrom(null);
+    setActOnPlayer(null);
 
-    // let stealFromCoins = getNestedObject(game, ['players', stealFrom, 'coins']);
+    // let actOnPlayerCoins = getNestedObject(game, ['players', actOnPlayer, 'coins']);
     // let coins =  getNestedObject(game, ['players', playerid, 'coins']);
-    // console.log("Stealing from player id: ",  stealFrom);
+    // console.log("Stealing from player id: ",  actOnPlayer);
 
     // // challenge mode
     // game.challenge = true;
 
-    // game.players[stealFrom].coins = stealFromCoins - 2;
+    // game.players[actOnPlayer].coins = actOnPlayerCoins - 2;
     // game.players[playerid].coins = coins + 2;
     // game.players[playerid].passed = true;
-    // game.players[stealFrom].passed = false;
+    // game.players[actOnPlayer].passed = false;
     // // game.passed = game.passed - 1;
 
     // // nextTurn();
     // updateGame();
   }
+
+  // function handleCoopChange(e) {
+  //   e.preventDefault();
+  //   setCoopPlayer(e.target.value);
+  // }
+
+  // function handleCoopSubmit(e) {
+  //   action(e);
+  // }
   
   
   let coins = useGetNestedObject(game, ['players', playerid, 'coins']);
+  const alive = useGetNestedObject(game, ['players', playerid, 'active']);
   const turn = useGetNestedObject(game, ['players', playerid, 'turn']) ? "Your turn!" : "";
   const losePlayer = useGetNestedObject(game, ['players', playerid, 'losePlayer']);
   const stealing = useGetNestedObject(game, ['players', playerid, 'actionTaken']) == 'steal' ? true : false;
+  const cooping = useGetNestedObject(game, ['players', playerid, 'actionTaken']) == 'coop' ? true : false;
   const passed = useGetNestedObject(game, ['players', playerid, 'passed']);
   const challenged = useGetNestedObject(game, ['players', playerid, 'challenge']);
-
+  const can_coop = coins > 6? true: false;
   const blocked = useGetNestedObject(game, ['players', playerid, 'blockedBy']) === "" ? false : true;
 
   const character_0 =  useGetNestedObject(game, ['players', playerid, 'characters', 0, "id"]); 
@@ -432,6 +433,7 @@ function Player() {
   const character_0_active = useGetNestedObject(game, ['players', playerid, 'characters', 0, "active"]);
   const character_1_active = useGetNestedObject(game, ['players', playerid, 'characters', 1, "active"]);
   let active_players = new Array(game.numPlayers);
+  
     for (let i = 0; i < game.numPlayers; i++ ) {
       active_players[i] = getNestedObject(game, ['players'], 'active')? getNestedObject(game, ['characters', character_0, 'name']) : false;
     }
@@ -446,15 +448,33 @@ function Player() {
             type="radio"
             value={p.id}
             name = "steal"
-            checked={stealFrom == p.id}
+            checked={actOnPlayer == p.id}
             key = {p.id}
-            onChange={handleStealChange}
+            onChange={handleActOnChange}
+          /> {p.id + 1}
+          </div> )
+      }
+    });
+  }
+
+  let coop_form = "";
+  if (game.players) {
+    coop_form = game.players.map( (p, i) => {
+      if (i != playerid && p.active) {  // Add active property to player.  Make first active player checked.
+        return ( 
+          <div>
+          <input
+            type="radio"
+            value={p.id}
+            name = "coop"
+            checked={actOnPlayer == p.id}
+            key = {p.id}
+            onChange={handleActOnChange}
           /> {p.id + 1}
           </div> ) 
       }
     });
   }
-
 
   const can_challenge = challenge_actions.includes(useGetNestedObject(game, ['players', game.pTurnId, 'actionTaken']))
   const can_block = block_actions.includes(useGetNestedObject(game, ['players', game.pTurnId, 'actionTaken']))
@@ -478,9 +498,23 @@ function Player() {
 
 
   // ******* RENDER ******* 
-  
-  // Loosing one of two players. Form to choose which to loose.
-  if (losePlayer && character_0_active && character_1_active){ 
+
+  if (!alive) {
+    return (
+      <div>
+        
+        <h1>Player Page {playeridURL} </h1>        
+        <h2>You have are DEAD </h2>
+
+        <h2>Characters</h2>
+        <div>{character_0_name} { (character_0_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+        <div>{character_1_name} { (character_1_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+     
+      </div>
+    );
+  }
+  // Loosing one of two players. Form to choose which to lose.
+  else if (losePlayer && character_0_active && character_1_active){ 
     return (
     <div>
     <div>HEY YOU LOSE A PLAYER!</div>
@@ -510,8 +544,20 @@ function Player() {
     return (
       <div>
       <div>Pick a Player to Steal From: </div>
-      <form onSubmit={handleStealSubmit} name="steal">
+      <form onSubmit={handleActOnSubmit} name="steal">
         {steal_players_form}
+      <button className="btn btn-default" type="submit" >Submit</button>
+      </form>
+      </div>
+    )
+  }
+  // challenge check does not work here since you cannot challenge a coop.
+  else if (cooping && game.players[0].characters[0]) { 
+    return (
+      <div>
+      <div>Pick a Player to Coop: </div>
+      <form onSubmit={handleActOnSubmit} name="coop">
+        {coop_form}
       <button className="btn btn-default" type="submit" >Submit</button>
       </form>
       </div>
@@ -531,7 +577,7 @@ function Player() {
       <button onClick={action} name="tax">Collect Tax</button>
       {/* LEFT OFF HERE, should on click event be steal or action? */}
       <button onClick={action} name="steal">Steal</button>
-      <button onClick={coop}>Coop!</button>
+      <button onClick={action} name="coop" disabled={!can_coop}>Coop!</button>
 
       <h2>Characters</h2>
       <div>{character_0_name} { (character_0_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
