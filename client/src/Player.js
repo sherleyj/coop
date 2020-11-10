@@ -552,7 +552,7 @@ function Player() {
     )
   }
   // challenge check does not work here since you cannot challenge a coop.
-  else if (cooping && game.players[0].characters[0]) { 
+  else if (cooping && game.players[0].characters[0] && !game.challenge) { 
     return (
       <div>
       <div>Pick a Player to Coop: </div>

@@ -12,9 +12,8 @@ app.use(bodyParser.json());
 /* GET home page. */
 router.get('/getGame/:id', function(req, res, next) {
   const gameid = req.params.id;
-  // console.log("grabbed from request parameter: " + gameid);
 
-  const game = {
+  let game = {
     "gameId": gameid,
     "numPlayers": 6,
     "challenge": false,
@@ -25,7 +24,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 0,
         "characters": [{"id": 2, "active": true}, {"id": 1, "active": true}],
-        "coins": 8,
+        "coins": 2,
         "turn": true,
         "challenge": false,
         "passed": false,
@@ -37,7 +36,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 1,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
-        "coins": 8,
+        "coins": 2,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -49,7 +48,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 2,
         "characters": [{"id": 3, "active": true}, {"id": 1, "active": true}],
-        "coins": 8,
+        "coins": 2,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -61,7 +60,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 3,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
-        "coins": 8,
+        "coins": 2,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -73,7 +72,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 4,
         "characters":[{"id": 4, "active": true}, {"id": 1, "active": true}],
-        "coins": 8,
+        "coins": 2,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -85,7 +84,7 @@ router.get('/getGame/:id', function(req, res, next) {
       {
         "id": 5,
         "characters": [{"id": 2, "active": true}, {"id": 0, "active": true}],
-        "coins": 8,
+        "coins": 2,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -129,14 +128,23 @@ router.get('/getGame/:id', function(req, res, next) {
     ]
   };
   
-  redis.set(gameid, JSON.stringify(game), "NX");
-
   redis.get(gameid).then(function (result) {
-    // console.log("this is the result: " + result); 
-    resJSON = JSON.parse(result);
-    res.json(resJSON);
+    console.log("this is the result: " + result); 
+    if (result) {
+      resJSON = JSON.parse(result);
+      res.json(resJSON);
+    } else {
+      game = shuffle(game);
+      redis.set(gameid, JSON.stringify(game), "NX");
+      redis.get(gameid).then(function (result) {
+        resJSON = JSON.parse(result);
+        res.json(resJSON);
+      }).catch(function(error){
+        console.log(error);
+      });
+    }
   }).catch(function (error) {
-    // console.log(error);
+    console.log(error);
   });
 
 });
@@ -201,6 +209,7 @@ router.post('/takeTurn', function(req, res) {
         game.players[playerId].actionTaken = "coop";
         if (actOnPlayer) {
           game.players[playerId].coins -= 7; 
+          game.challenge = true;
           if (game.players[actOnPlayer].characters[0].active && game.players[actOnPlayer].characters[0].active) {
             game.players[actOnPlayer].losePlayer = true;
           } else  {
@@ -290,7 +299,52 @@ function passedSet(game, id) {
   return game;
 }
 
+function shuffle(game) {
+try {
 
+  let c = new Array;
+  game.characters.forEach( (p, i) =>{
+    let a = p.available
+    while(a > 0){
+      c.push(i);
+      a -= 1;
+    }
+  });
+
+  console.log(c);
+  // let c = [0,0,0,1,1,1,2,2,2,3,3,3,4,4,4];
+
+  // for (let i = c.length - 1; i > 0; i--) {
+  //   let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+  //  // swap with "destructuring assignment" syntax 
+  //   [c[i], c[j]] = [c[j], c[i]];
+  // }
+
+  for (let i = 0; i < c.length - 1; i++) {
+    let j = Math.floor(Math.random() * (c.length - i)) + i; // random index from i to c.length - 1
+   // swap with "destructuring assignment" syntax 
+   let p = (c.length) - i;
+   console.log( " (c.length) - i: " +p +" i: " + i + " j: " + j);
+    [c[i], c[j]] = [c[j], c[i]];
+  }
+  console.log(c);
+  
+  let i = 0;
+  game.players.forEach( (p) => {
+    game.characters[c[i]].available -= 1;
+    p.characters[0].id = c[i];
+    i += 1;
+    game.characters[c[i]].available -= 1;
+    p.characters[1].id = c[i];
+    i += 1;
+  });
+
+} catch(e) {
+  console.log(e);
+}
+
+  return game;
+}
 
 
 module.exports = router;
