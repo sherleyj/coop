@@ -28,7 +28,6 @@ function Player() {
   const [exchangePicks, setExchangePicks] = useState([false,false,false,false]); 
 
   const [numSelected, setNumSelected] = useState(0);
-  const [pickedCard, setPickedCard] = useState(false);
   // const [stealingFrom, stealingFrom]
   // const [wait, setWait] = useState(false);
   // const [challenged, setChallenged] = false;
@@ -183,7 +182,7 @@ function Player() {
       // const action = e.target.name;
       console.log("ACTION: ", action);
 
-      if (action == "steal" || action == "coop" || action == "exchange" && actOnId) {
+      if (action == "steal" || action == "coop" || action == "exchange" || action == "assassinate" && actOnId) {
         body = {"gameId": gameidURL,  "playerId": playerid, "action": action, "actOnId": actOnId};
       } else {
         body = {"gameId": gameidURL,  "playerId": playerid, "action": action, "actOnId": []};
@@ -219,8 +218,8 @@ function Player() {
   const _challenge = async(action) => {
     
     if (can_challenge) {
-      let body = {"gameId": gameidURL, "playerId": playerid, "action": action, "game": game}
-
+      let body = {"gameId": gameidURL, "playerId": playerid}
+      console.log("POST: ", body);
       try {
         const requestOptions = {
           method: 'POST',
@@ -304,8 +303,8 @@ function Player() {
       // }
       
       if (c_0.active && c_1.active
-      && game.characters[c_0.id].action != turnPlayer.actionTaken 
-      && game.characters[c_1.id].action != turnPlayer.actionTaken) {
+      && game.characters[c_0.id].action != game.actionTaken 
+      && game.characters[c_1.id].action != game.actionTaken) {
         console.log("Challenge: SUCCESS Lose Player!, both are active");
         turnPlayer.losePlayer = true;
         success = true;
@@ -313,7 +312,7 @@ function Player() {
         // if (turnPlayer.actionTaken == 'tax') {
         //   turnPlayer.coins = turnPlayer.coins - 3;
         // }
-      } else if (c_0.active && game.characters[c_0.id].action != turnPlayer.actionTaken
+      } else if (c_0.active && game.characters[c_0.id].action != game.actionTaken
         && !c_1.active) {
         console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
         c_0.active = false;
@@ -322,7 +321,7 @@ function Player() {
         game.activePlayers -= 1;
         success = true;
         // nextTurn();
-      } else if (c_1.active && game.characters[c_1.id].action != turnPlayer.actionTaken && !c_0.active) {
+      } else if (c_1.active && game.characters[c_1.id].action != game.actionTaken && !c_0.active) {
         console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
         c_1.active = false;
         turnPlayer.active = false;
@@ -462,8 +461,6 @@ function Player() {
   // }
 
   const pass = async(e) => {
-
-    
     if (can_challenge || can_block) {
       let body = {"gameId": gameidURL, "playerId": playerid}
 
@@ -489,6 +486,33 @@ function Player() {
     }
   }
 
+  const loseCharacterAPI = async(characterToLose) => {
+    if (can_challenge || can_block) {
+      let body = {"gameId": gameidURL, "playerId": playerid, "characterToLose": characterToLose}
+
+      try {
+        const requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        };
+
+        const data = await fetch('http://localhost:9000/loseCharacter', requestOptions);
+        const gameFromAPI = await data.json();
+
+        setGame({
+          ...gameFromAPI,
+          players : [...gameFromAPI.players],
+          characters : [...gameFromAPI.characters]
+        });
+      } catch(e) {
+        console.log(e);
+        return <div>Error: {e.message}</div>;
+      }
+    }
+  }
+
+
   function getNestedObject(nestedObj, pathArr) {
     return pathArr.reduce((obj, key) =>
         (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);    
@@ -505,11 +529,12 @@ function Player() {
     e.preventDefault();
     setChooseCharId(e.target.value);
     console.log("^^^^^^^^^^^^^^^^^^^^^^^^^ ", chooseCharId);
-    game.players[playerid].characters[parseInt(chooseCharId)].active = false;
-    game.players[playerid].losePlayer = false;
-    game.players[playerid].influence -= 1;
-    nextTurn();
-    updateGameAPI();
+    // game.players[playerid].characters[parseInt(chooseCharId)].active = false;
+    // game.players[playerid].losePlayer = false;
+    // game.players[playerid].influence -= 1;
+    // nextTurn();
+    // updateGameAPI();
+    loseCharacterAPI(chooseCharId);
   }
 
   function handleSwapCard(e) {
@@ -517,7 +542,6 @@ function Player() {
     e.preventDefault();
     setChooseCharId(e.target.value);
     console.log("chooseCharId: ", chooseCharId);
-    setPickedCard(true);
     game.players[playerid].characters[chooseCharId].swap = game.players[playerid].characters[chooseCharId].id;
     updateGame();
     // takeAction(e.target.name);
@@ -525,7 +549,6 @@ function Player() {
     console.log("handleSwapCard, chooseCharId.id: ", game.players[playerid].characters[chooseCharId].id);
   } 
 
-  console.log(actOnId)
   function handleActOnChange(e) {
     // actOnId = e.target.value;
     setActOnChecked(e.target.value);
@@ -596,11 +619,12 @@ function Player() {
   const stealing = turn && game.actionTaken == 'steal' ? true : false;
   const cooping = turn && game.actionTaken == 'coop' ? true : false
   const exchanging = turn && game.actionTaken == 'exchange' ? true : false;
+  const assassinating = turn && game.actionTaken == 'assassinate' ? true : false;
 
   const passed = useGetNestedObject(game, ['players', playerid, 'passed']);
   const challenged = useGetNestedObject(game, ['players', playerid, 'challenge']);
   const can_coop = coins > 6? true: false;
-  console.log("can_coop? ", can_coop);
+  // console.log("can_coop? ", can_coop);
   const blocked = useGetNestedObject(game, ['players', playerid, 'blockedBy']) === "" ? false : true;
 
   const character_0 =  useGetNestedObject(game, ['players', playerid, 'characters', 0, "id"]); 
@@ -618,7 +642,6 @@ function Player() {
 
   let steal_players_form = "";
   if (game.players) {
-    console.log("RE-RENDER FORM")
     steal_players_form = game.players.map( (p, i) => {
       if (i != playerid && p.coins > 0 && p.active) {  // Add active property to player.  Make first active player checked.
         return ( 
@@ -634,10 +657,10 @@ function Player() {
       }
     });
   }
-
-  let coop_form = "";
+  console.log(actOnId[0]);
+  let coop_assassinate_form = "";
   if (game.players) {
-    coop_form = game.players.map( (p, i) => {
+    coop_assassinate_form = game.players.map( (p, i) => {
       if (i != playerid && p.active) {  // Add active property to player.  Make first active player checked.
         return ( 
           <div>
@@ -714,7 +737,6 @@ function Player() {
 
   useInterval(async () => {
     if (!turn || (turn && game.challenge)) {
-      console.log(game)
       return await getGameAPI();
     }
   }, 5000);
@@ -736,7 +758,7 @@ console.log(game);
       </div>
     );
   }
-  else if (exchanging && !pickedCard && !game.challenge) {
+  else if (exchanging && !actOnId.length && !game.challenge) {
     // form with exchangeOptions
     return(
       <div>
@@ -748,18 +770,6 @@ console.log(game);
         </form>
       </div>
     );
-  // } else if (exchanging && pickedCard && !game.challenge /*&& !wait*/) { 
-  //   // form with exchangeOptions
-  //   return(
-  //     <div>
-  //       <div>Pick One Card to Keep</div>
-  //       <form onSubmit={handleActOnSubmit} name="exchange">
-  //         {exchange_form}
-  //         <button className="btn btn-default" type="submit">Submit</button>
-  //       </form>
-  //     </div>
-  //   );
-  // }
   // Loosing one of two players. Form to choose which to lose.
   } else if (losePlayer && character_0_active && character_1_active){ 
     return (
@@ -797,6 +807,16 @@ console.log(game);
       </form>
       </div>
     )
+  } else if (assassinating && !game.actOnId.length && !game.challenge) {
+    return (
+      <div>
+      <div>Pick a Player to Assassinate: </div>
+      <form onSubmit={handleActOnSubmit} name="assassinate">
+        {coop_assassinate_form}
+      <button className="btn btn-default" type="submit" >Submit</button>
+      </form>
+      </div>
+    )
   }
   // challenge check does not work here since you cannot challenge a coop.
   else if (cooping && game.players[0].characters[0] && !game.challenge) { 
@@ -804,7 +824,7 @@ console.log(game);
       <div>
       <div>Pick a Player to Coop: </div>
       <form onSubmit={handleActOnSubmit} name="coop">
-        {coop_form}
+        {coop_assassinate_form}
       <button className="btn btn-default" type="submit" >Submit</button>
       </form>
       </div>
@@ -825,6 +845,7 @@ console.log(game);
       <button onClick={action} name="exchange" disabled={actionChosen}>Exchange</button>
       {/* LEFT OFF HERE, should on click event be steal or action? */}
       <button onClick={action} name="steal" disabled={actionChosen}>Steal</button>
+      <button onClick={action} name="assassinate" disabled={actionChosen || (coins < 3)}>Assassinate</button>
       <button onClick={action} name="coop" disabled={!can_coop || actionChosen}>Coop!</button>
 
       <h2>Characters</h2>
@@ -842,7 +863,7 @@ console.log(game);
         <h2>You have {coins} coins </h2>
 
         <span>Challenge/Counteraction/Pass</span> <br></br>
-        <button onClick={challenge} disabled={(!can_challenge || challenged || passed) }>Challenge</button>
+        <button onClick={_challenge} disabled={(!can_challenge || challenged || passed) }>Challenge</button>
         <button onClick={block} disabled={(!can_block || challenged || passed)}>Block</button>
         {/* <button onClick={challenge}>Counteract</button> */}
         <button onClick={pass} disabled={(passed || challenged)}>Pass</button>

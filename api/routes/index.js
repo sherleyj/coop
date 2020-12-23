@@ -30,7 +30,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "id": 0,
         "characters": [{"id": 2, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
-        "coins": 2,
+        "coins": 3,
         "turn": true,
         "challenge": false,
         "passed": false,
@@ -43,7 +43,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "id": 1,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
-        "coins": 2,
+        "coins": 3,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -56,7 +56,7 @@ router.get('/getGame/:id', function(req, res, next) {
         "id": 2,
         "characters": [{"id": 3, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
-        "coins": 2,
+        "coins": 3,
         "turn": false,
         "challenge": false,
         "passed": false,
@@ -202,8 +202,8 @@ router.post('/takeTurn', function(req, res) {
         // exchange: Challenge occurs before actOnId is filled (the card you are selecting to keep)
         // steal: must select actOnId before challenge mode
         // coop: must select actOnId before resolving action.  No challenge mode, this action cannot be challenged.
-        if (!challenge && !game.passed && (action == "exchange" || action == "aid" || action == "tax" || action == "steal" || action == "coop")) {
-          if (action == "steal") { 
+        if (!challenge && !game.passed && (action == "exchange" || action == "aid" || action == "tax" || action == "steal" || action == "coop" || action == "assassinate")) {
+          if (action == "steal" || action == "assassinate") { 
             if (actOnId.length) {
               game.challenge = true;
               game.actOnId[0] = actOnId;
@@ -242,73 +242,121 @@ router.post('/takeTurn', function(req, res) {
 });
 
 router.post('/challenge', function(req, res) {
-  try {
+  console.log("CHALLENGE!");
+  const challenge_actions = ['tax','assassinate','steal','exchange','block'];
+  
+    console.log("in Try");
     const gameId = req.body.gameId;
     let game = {};
     const playerId = req.body.playerId;
-    const action = req.body.actionTaken;
-    const turnPlayer = req.body.pTurnId;
-    const actOnId = req.body.actOnId;
 
     redis.get(gameId).then(function (result) {
       resJSON = JSON.parse(result);
       game = resJSON;
+      console.log("got game: ", game);
+      const c_0 = game.players[game.pTurnId].characters[0]; 
+      const c_1 =  game.players[game.pTurnId].characters[1];
+      game.players[playerId].challenge = true;
+      
+      if (challenge_actions.includes(game.actionTaken)) {
+        if (c_0.active && c_1.active
+          && game.characters[c_0.id].action != game.actionTaken 
+          && game.characters[c_1.id].action != game.actionTaken) {
+            console.log("Challenge: SUCCESS Lose Player!, both are active");
+            game.players[game.pTurnId].losePlayer = true;
+        } else if (c_0.active && game.characters[c_0.id].action != game.actionTaken && !c_1.active) {
+            console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
+            c_0.active = false;
+            game.players[game.pTurnId].active = false;
+            game.activePlayers -= 1;
+            game = nextTurn(game);
+        } else if (c_1.active && game.characters[c_1.id].action != game.actionTaken && !c_0.active) {
+            console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
+            c_1.active = false;
+            game.players[game.pTurnId].active = false;
+            game.activePlayers -= 1;
+            game = nextTurn(game);
+        } else { // challenger loses player
+            console.log("Challenger loses player")
+            // TODO TakeAction call here.
+            if (!c_1.active || !c_0.active) {
+              game.players[playerId].active = false;
+              game.activePlayers -= 1;
+              c_0.active = false;
+              c_1.active = false;
+            } else {
+              game.players[playerId].losePlayer = true;
+            }
+            game = resolveAction(game, game.pTurnId, game.actionTaken, []);
+            // game = nextTurn(game); **** UNCOMMENT WHEN LOSE PLAYER IS MOVED TO SERVER
+        }
+      }
+      redis.set(gameId, JSON.stringify(game));
+      redis.get(gameId).then(function (result) {
+        console.log("Challenge Complete, game: " + result); 
+        resJSON = JSON.parse(result);
+        res.json(resJSON);
+      }).catch(function (error) {
+        console.log(error);
+        res.send("There was an error.");
+      });
     }).catch(function (error) {
+      console.log("ERROR");
       console.log(error);
       res.send("There was an error grabbbing game, gameId: ", gameId);
     });
 
-    const c_0 = turnPlayer.characters[0]; 
-    const c_1 =  turnPlayer.characters[1];
-    
-    game.players[playerid].challenge = true;
+    // console.log("got game: ", game);
+    // const action = game.actionTaken;
+    // const turnPlayer = game.pTurnId;
+    // const c_0 = turnPlayer.characters[0]; 
+    // const c_1 =  turnPlayer.characters[1];
 
     
-    if (challenge_actions.includes(action)) {
-      if (c_0.active && c_1.active
-        && game.characters[c_0.id].action != turnPlayer.actionTaken 
-        && game.characters[c_1.id].action != turnPlayer.actionTaken) {
-          console.log("Challenge: SUCCESS Lose Player!, both are active");
-          turnPlayer.losePlayer = true;
-        } else if (c_0.active && game.characters[c_0.id].action != turnPlayer.actionTaken
-          && !c_1.active) {
-          console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
-          c_0.active = false;
-          turnPlayer.active = false;
-          game.activePlayers -= 1;
-        } else if (c_1.active && game.characters[c_1.id].action != turnPlayer.actionTaken && !c_0.active) {
-          console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
-          c_1.active = false;
-          turnPlayer.active = false;
-          game.activePlayers -= 1;
-          nextTurn();
-        } else { // challenger loses player
-          c_0 = game.players[playerId].characters[0];
-          c_1 = game.players[playerId].characters[1];
-          // TODO TakeAction call here.
-          if (!c_1.active || !c_0.active) {
-            game.players[playerId].active = false;
-            game.activePlayers -= 1;
-            c_0.active = false;
-            c_1.active = false;
-          } else {
-            game.players[playerId].losePlayer = true;
-          }
-          action(game, playerId, action, actOnId)
-        }
-    }
-    redis.set(gameId, JSON.stringify(game));
-    redis.get(gameId).then(function (result) {
-      console.log("Challenge Complete, game: " + result); 
-      resJSON = JSON.parse(result);
-      res.json(resJSON);
-    }).catch(function (error) {
-      console.log(error);
-      res.send("There was an error.");
-    });
-  } catch {
-    console.log(e);
-  }
+    // game.players[playerid].challenge = true;
+    
+    // if (challenge_actions.includes(action)) {
+    //   if (c_0.active && c_1.active
+    //     && game.characters[c_0.id].action != game.actionTaken 
+    //     && game.characters[c_1.id].action != turnPlayer.actionTaken) {
+    //       console.log("Challenge: SUCCESS Lose Player!, both are active");
+    //       turnPlayer.losePlayer = true;
+    //     } else if (c_0.active && game.characters[c_0.id].action != turnPlayer.actionTaken
+    //       && !c_1.active) {
+    //       console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
+    //       c_0.active = false;
+    //       turnPlayer.active = false;
+    //       game.activePlayers -= 1;
+    //     } else if (c_1.active && game.characters[c_1.id].action != turnPlayer.actionTaken && !c_0.active) {
+    //       console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
+    //       c_1.active = false;
+    //       turnPlayer.active = false;
+    //       game.activePlayers -= 1;
+    //       nextTurn();
+    //     } else { // challenger loses player
+    //       c_0 = game.players[playerId].characters[0];
+    //       c_1 = game.players[playerId].characters[1];
+    //       // TODO TakeAction call here.
+    //       if (!c_1.active || !c_0.active) {
+    //         game.players[playerId].active = false;
+    //         game.activePlayers -= 1;
+    //         c_0.active = false;
+    //         c_1.active = false;
+    //       } else {
+    //         game.players[playerId].losePlayer = true;
+    //       }
+    //       action(game, playerId, action, actOnId)
+    //     }
+    // }
+    // redis.set(gameId, JSON.stringify(game));
+    // redis.get(gameId).then(function (result) {
+    //   console.log("Challenge Complete, game: " + result); 
+    //   resJSON = JSON.parse(result);
+    //   res.json(resJSON);
+    // }).catch(function (error) {
+    //   console.log(error);
+    //   res.send("There was an error.");
+    // });
 
 });
 
@@ -319,24 +367,52 @@ router.post('/pass', (req, res) => {
   redis.get(gameId).then(function (result) {
     console.log("Challenge Complete, game: " + result); 
     game = JSON.parse(result);
-    game.passed = game.passed + 1;
-    game.players[playerId].passed = true;
-   
-    // TODO: need to active players count
-    if (game.passed == game.activePlayers - 1){ 
-      game.challenge = false;
-      console.log("resolving action with game: ", game)
-      game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId); 
-    }
+
+    if (!game.players[playerId].passed) {
+      game.passed = game.passed + 1;
+      game.players[playerId].passed = true;
     
-    redis.set(gameId, JSON.stringify(game));
-    res.json(game);
+      // TODO: need to active players count
+      if (game.passed == game.activePlayers - 1){ 
+        game.challenge = false;
+        console.log("resolving action with game: ", game)
+        game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId); 
+      }
+      
+      redis.set(gameId, JSON.stringify(game));
+      res.json(game);
+    }
   }).catch(function (error) {
     console.log(error);
     res.send("There was an error.");
   });
 });
- 
+
+router.post('/loseCharacter', (req, res) => {
+  let gameId = req.body.gameId;
+  let playerId = req.body.playerId;
+  let characterToLose = req.body.characterToLose;
+
+  redis.get(gameId).then(function (result) {
+    console.log("Challenge Complete, game: " + result); 
+    game = JSON.parse(result);
+    
+    if (game.players[playerId].losePlayer) {
+      game.players[playerId].characters[parseInt(characterToLose)].active = false;
+      game.players[playerId].losePlayer = false;
+      game.players[playerId].influence -= 1;
+      game = nextTurn(game);
+      
+      redis.set(gameId, JSON.stringify(game));
+      res.json(game);
+    } else {
+      res.send("You did not lose a player");
+    }
+  }).catch(function (error) {
+    console.log(error);
+    res.send("There was an error.");
+  });
+});
 
 function resolveAction(game, playerId, action, actOnId) {
   console.log("***** in resolveAction *****")
@@ -346,23 +422,22 @@ function resolveAction(game, playerId, action, actOnId) {
       console.log("case income")
       game.players[playerId].coins += 1;
       // game.players[playerId].actionTaken = 'income';
-      game = nextTurn(game, playerId); 
+      game = nextTurn(game); 
       break;
     case "aid":
       console.log("case aide")
       game.players[playerId].coins += 2;
       game.players[playerId].actionTaken = "aid";
       // game.challenge = true;
-      game = nextTurn(game, playerId); 
+      game = nextTurn(game); 
       // game.waitingOnId = -1;
       break;
     case "tax":
       console.log("case tax")
       game.players[playerId].coins += 3;
-      // game.players[playerId].actionTaken = "tax";
-      // game.challenge = ;
-      game = nextTurn(game, playerId); 
-      // game.waitingOnId = -1;
+      if (!game.challenge) {
+        game = nextTurn(game);
+      } 
       break;
     case "steal":
       console.log("case steal")
@@ -380,7 +455,9 @@ function resolveAction(game, playerId, action, actOnId) {
         game.players[actOnId].passed = false;
         // game.challenge = true;
         // game.waitingOnId = -1;
-        game = nextTurn(game, playerId);
+        if (!game.challenge) {
+          game = nextTurn(game);
+        } 
       }
       break;
     case "coop":
@@ -399,7 +476,7 @@ function resolveAction(game, playerId, action, actOnId) {
           }
           game.players[actOnId].active = false
           game.activePlayers -= 1;
-          // game = nextTurn(game, playerId);
+          // game = nextTurn(game);
         }
       } else {
         console.log("You do not have enough coins to coop! ");
@@ -442,9 +519,28 @@ function resolveAction(game, playerId, action, actOnId) {
             remove -= 1;
           }
         });
-        game = nextTurn(game, playerId); 
-
+        if (!game.challenge) {
+          game = nextTurn(game);
+        } 
+      }
+      break;
+    case "assassinate" :
+      console.log("case assassinate")
+      game.players[playerId].actionTaken = "assassinate";
+      if (actOnId.length) {
+        if (game.players[actOnId[0]].characters[0].active && game.players[actOnId[0]].characters[1].active) {
+          console.log("This player is losing a player: ", actOnId[0])
+          game.players[actOnId[0]].losePlayer = true;
+          console.log("updated loose player for them: ", game);
+        } else {
+          console.log("Player DEAD!: ", actOnId[0])
+          game.players[actOnId[0]].characters[0].active = false;
+          game.players[actOnId[0]].characters[1].active = false;
+          game.activePlayers -= 1;
+          game.players[actOnId[0]].active = false;
         }
+      }
+        
       break;
   }
 
@@ -452,13 +548,11 @@ function resolveAction(game, playerId, action, actOnId) {
 }
 
   // TODO: skip inactive players when setting next players turn.
-function nextTurn(game, playerId) {
+function nextTurn(game) {
   console.log("in NextTurn, gameid: ", game.gameId);
   game.players[game.pTurnId].turn = false;
   game.players[game.pTurnId].actionTaken = "";
-  game.players[playerId].actionTaken = "";
-  game.players[playerId].characters[0].swap = "";
-  game.players[playerId].characters[1].swap = "";
+  game.players[game.pTurnId].actionTaken = "";
 
   let blockerId = game.players[game.pTurnId].blockedBy;
   if (blockerId){
