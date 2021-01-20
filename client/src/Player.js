@@ -108,46 +108,6 @@ function Player() {
       characters : [...game.characters]
     })
   }
-  
-
-  // TODO: skip inactive players when setting next players turn.
-  function nextTurn() {
-    game.players[game.pTurnId].turn = false;
-    game.players[game.pTurnId].actionTaken = "";
-    game.players[playerid].actionTaken = "";
-
-    let blockerId = game.players[game.pTurnId].blockedBy;
-    if (blockerId){
-      let blockingPlayer = game.players[blockerId];
-      blockingPlayer.actionTaken = "";
-    }
-
-    game.players[game.pTurnId].blockedBy = "";
-
-    game.pTurnId = (game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1;
-    while(!game.players[game.pTurnId].active) {
-      game.pTurnId = (game.numPlayers == game.pTurnId+1) ? 0 : game.pTurnId+1;
-    }
-    // game.waitingOnId = game.pTurnId;
-    game.players[game.pTurnId].turn = true;
-    
-    game.challenge = false;
-    // setChallenged(false);
-
-    game.passed = 0;
-
-    let first = false;
-    game.players.forEach((p, i) => {
-      if (p.active && !first){
-        first = true;
-      }
-      p.passed = false
-      p.characters[0].swap = "";
-      p.characters[1].swap = "";
-      p.challenge = false;
-    })
-
-  }
 
   function passedSet(id) {
     game.players.forEach( (p, i) => {
@@ -175,6 +135,7 @@ function Player() {
     // }
   }
   
+  console.log(actOnId);
   const takeAction = async(action) => {
     // e.preventDefault();
     if (game.players[playerid].turn && !game.challenge) {
@@ -215,7 +176,7 @@ function Player() {
     }
   }
 
-  const _challenge = async(action) => {
+  const challenge = async(action) => {
     
     if (can_challenge) {
       let body = {"gameId": gameidURL, "playerId": playerid}
@@ -242,8 +203,59 @@ function Player() {
     }
   }
 
+  const challengeBlock = async(action) => {
+    
+      let body = {"gameId": gameidURL, "playerId": playerid}
+      console.log("POST: ", body);
+      try {
+        const requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        };
 
-  function block(e) {
+        const data = await fetch('http://localhost:9000/challengeBlock', requestOptions);
+        const gameFromAPI = await data.json();
+
+        setGame({
+          ...gameFromAPI,
+          players : [...gameFromAPI.players],
+          characters : [...gameFromAPI.characters]
+        });
+      } catch(e) {
+        console.log(e);
+        return <div>Error: {e.message}</div>;
+      }
+  }
+
+  const block = async(action) => {
+    if (can_block) {
+      let body = {"gameId": gameidURL, "playerId": playerid}
+      console.log("POST: ", body);
+      try {
+        const requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        };
+
+        const data = await fetch('http://localhost:9000/block', requestOptions);
+        const gameFromAPI = await data.json();
+
+        setGame({
+          ...gameFromAPI,
+          players : [...gameFromAPI.players],
+          characters : [...gameFromAPI.characters]
+        });
+      } catch(e) {
+        console.log(e);
+        return <div>Error: {e.message}</div>;
+      }
+    }
+  }
+
+
+  function _block(e) {
     e.preventDefault();
     console.log("***BLOCK***");
 
@@ -251,7 +263,8 @@ function Player() {
     let blockingPlayer = game.players[playerid];
 
     game.players[playerid].actionTaken = 'block';
-    turnPlayer.blockedBy = playerid;
+    // turnPlayer.blockedBy = playerid;
+    game.blockedBy = playerid;
     game.challenge = true
 
     if (can_block) {
@@ -271,106 +284,6 @@ function Player() {
 
   }
 
-  // When challenging a block counteraction, playerid = game.pturnid
-  function challenge(e) {
-    e.preventDefault();
-
-    // setChallenged (true);
-    console.log("***CHALLENGE***");
-
-    let turnPlayer = game.players[game.pTurnId];
-    let c_0 =  turnPlayer.characters[0]; 
-    let c_1 =  turnPlayer.characters[1];
-    let success = false;
-    game.players[playerid].challenge = true;
-    
-    console.log("can_challenge: ", can_challenge);
-    if (can_challenge) {
-      console.log("turnPlayer.actionTaken: ", turnPlayer.actionTaken);
-      // if (turnPlayer.actionTaken == 'exchange') {
-      //   let swappedOutChar = turnPlayer.characters[0].swap? turnPlayer.characters[0].swap : turnPlayer.characters[1].swap;
-      //   let cardIndex = turnPlayer.characters[0].swap? 0: 1;
-      //   if (game.characters[swappedOutChar].action != turnPlayer.actionTaken) {
-      //     game.characters[cardIndex].active = false;
-      //     game.players[playerid].losePlayer = true;
-      //     if ( !(game.characters[0].active && game.characters[1].active) ) {
-      //       turnPlayer.active = false;
-      //       game.activePlayers -= 1;
-      //     }
-      //     success = true;
-      //     console.log("Challenge of exchange success: ", success);
-      //   }
-      // }
-      
-      if (c_0.active && c_1.active
-      && game.characters[c_0.id].action != game.actionTaken 
-      && game.characters[c_1.id].action != game.actionTaken) {
-        console.log("Challenge: SUCCESS Lose Player!, both are active");
-        turnPlayer.losePlayer = true;
-        success = true;
-        console.log("success: ", success);
-        // if (turnPlayer.actionTaken == 'tax') {
-        //   turnPlayer.coins = turnPlayer.coins - 3;
-        // }
-      } else if (c_0.active && game.characters[c_0.id].action != game.actionTaken
-        && !c_1.active) {
-        console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
-        c_0.active = false;
-        turnPlayer.active = false;
-        turnPlayer.influence -= 1;
-        game.activePlayers -= 1;
-        success = true;
-        // nextTurn();
-      } else if (c_1.active && game.characters[c_1.id].action != game.actionTaken && !c_0.active) {
-        console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
-        c_1.active = false;
-        turnPlayer.active = false;
-        turnPlayer.influence -= 1;
-        game.activePlayers -= 1;
-        success = true;
-        nextTurn();
-      } else {
-        // shouldn't get here
-        // console.log("Challenger: lose player!!");
-        game.players[playerid].losePlayer = true;
-      }
-    }
-
-    // if (success) {
-    //   if (turnPlayer.actionTaken == 'tax') {
-    //     console.log("Removing TAX");
-    //     turnPlayer.coins = turnPlayer.coins - 3;
-    //     // nextTurn();
-    //   } else if (turnPlayer.actionTaken == 'steal') {
-    //     console.log("Remove STEAL");
-
-    //     turnPlayer.coins = turnPlayer.coins - 2;
-        
-    //     const steal_from_coins = game.players[playerid].coins;
-    //     game.players[playerid].coins = steal_from_coins + 2;
-
-    //     console.log("GAME BELOW ->")
-    //     console.log(game);
-    //   } else if (turnPlayer.actionTaken == 'exchange') {
-    //     let swappedOutChar = turnPlayer.characters[0].swap? turnPlayer.characters[0].swap : turnPlayer.characters[1].swap;
-    //     let cardIndex = turnPlayer.characters[0].swap? 0 : 1;
-    //     let swappedInChar = turnPlayer.characters[cardIndex].id;
-
-    //     game.characters[swappedOutChar].available -= 1;
-    //     turnPlayer.characters[cardIndex].id = swappedOutChar;
-    //     turnPlayer.characters[cardIndex].swap = "";
-    //     game.characters[swappedInChar].available += 1;
-    //     console.log("UN_SWAPPED!!");
-    //   }
-    // }
-
-    // if (!turnPlayer.losePlayer && !game.players[playerid].losePlayer) {
-    //   nextTurn();
-    // }
-
-    updateGameAPI();
-
-  }
 
     // When challenging a block counteraction, playerid = game.pturnid
   function challenge_block(e) {
@@ -378,7 +291,9 @@ function Player() {
 
     console.log("***CHALLENGE BLOCK***");
 
-    let blockingPlayer = game.players[game.players[game.pTurnId].blockedBy];
+    // let blockingPlayer = game.players[game.players[game.pTurnId].blockedBy];
+    let blockingPlayer = game.players[game.blockedBy];
+
 
     let turnPlayer = game.players[game.pTurnId];
     let c_0 =  blockingPlayer.characters[0]; 
@@ -566,7 +481,7 @@ function Player() {
     
     console.log("in handleActOnSubmit, actOnId: ", actOnId);
     takeAction(e.target.name);
-    // setActOnId(null);
+    setActOnId([]);
   }
 
 
@@ -608,7 +523,7 @@ function Player() {
 
     console.log("IN Submit, actOnId:", actOnId);
     takeAction('exchange');
-
+    setActOnId([]);
   }
   
   let coins = useGetNestedObject(game, ['players', playerid, 'coins']);
@@ -625,7 +540,7 @@ function Player() {
   const challenged = useGetNestedObject(game, ['players', playerid, 'challenge']);
   const can_coop = coins > 6? true: false;
   // console.log("can_coop? ", can_coop);
-  const blocked = useGetNestedObject(game, ['players', playerid, 'blockedBy']) === "" ? false : true;
+  const blocked = game.blockedBy !== "" && turn ? true : false;
 
   const character_0 =  useGetNestedObject(game, ['players', playerid, 'characters', 0, "id"]); 
   const character_1 =  useGetNestedObject(game, ['players', playerid, 'characters', 1, "id"]);
@@ -657,7 +572,6 @@ function Player() {
       }
     });
   }
-  console.log(actOnId[0]);
   let coop_assassinate_form = "";
   if (game.players) {
     coop_assassinate_form = game.players.map( (p, i) => {
@@ -742,6 +656,7 @@ function Player() {
   }, 5000);
 
 console.log(game);
+console.log("actionChosen: ", actionChosen);
   // ******* RENDER ******* 
 
   if (!alive) {
@@ -831,7 +746,7 @@ console.log(game);
     )
   }
   // start turn, choose action to take.
-  else if (turn && !game.challenge) { 
+  else if (turn && !game.challenge && !game.actionTaken) { 
     return (
       <div>
       
@@ -863,7 +778,7 @@ console.log(game);
         <h2>You have {coins} coins </h2>
 
         <span>Challenge/Counteraction/Pass</span> <br></br>
-        <button onClick={_challenge} disabled={(!can_challenge || challenged || passed) }>Challenge</button>
+        <button onClick={challenge} disabled={(!can_challenge || challenged || passed) }>Challenge</button>
         <button onClick={block} disabled={(!can_block || challenged || passed)}>Block</button>
         {/* <button onClick={challenge}>Counteract</button> */}
         <button onClick={pass} disabled={(passed || challenged)}>Pass</button>
@@ -883,7 +798,7 @@ console.log(game);
         <h2>You have {coins} coins </h2>
         <span>Challenge or Pass the Block</span> <br></br>
 
-        { (!challenged && !passed) ? <button onClick={challenge_block}>Challenge</button> : null }
+        { (!challenged && !passed) ? <button onClick={challengeBlock}>Challenge</button> : null }
         { !(passed) ? <button onClick={pass}>Pass</button> : null }
 
         <h2>Characters</h2>
