@@ -656,13 +656,13 @@ function Player() {
   }, 5000);
 
 console.log(game);
-console.log("actionChosen: ", actionChosen);
+console.log("exchanging: ", exchanging);
   // ******* RENDER ******* 
 
   if (!alive) {
     return (
       <div>
-        
+        {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
         <h1>Player Page {playeridURL} </h1>        
         <h2>You have are DEAD </h2>
 
@@ -677,6 +677,8 @@ console.log("actionChosen: ", actionChosen);
     // form with exchangeOptions
     return(
       <div>
+        {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
+
         <div>Pick {game.players[game.pTurnId].influence} cards to keep:</div>
         <form onSubmit={handleExchangePicksSubmit} name="exchange">
           {/* {pick_card_form} */}
@@ -689,6 +691,7 @@ console.log("actionChosen: ", actionChosen);
   } else if (losePlayer && character_0_active && character_1_active){ 
     return (
     <div>
+    {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
     <div>HEY YOU LOSE A PLAYER!</div>
     <form onSubmit={handleLoseCharSubmit}>
       <input
@@ -715,6 +718,7 @@ console.log("actionChosen: ", actionChosen);
   else if (stealing && game.players[0].characters[0] && !game.challenge) { 
     return (
       <div>
+      {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
       <div>Pick a Player to Steal From: </div>
       <form onSubmit={handleActOnSubmit} name="steal">
         {steal_players_form}
@@ -725,6 +729,7 @@ console.log("actionChosen: ", actionChosen);
   } else if (assassinating && !game.actOnId.length && !game.challenge) {
     return (
       <div>
+      {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
       <div>Pick a Player to Assassinate: </div>
       <form onSubmit={handleActOnSubmit} name="assassinate">
         {coop_assassinate_form}
@@ -737,6 +742,7 @@ console.log("actionChosen: ", actionChosen);
   else if (cooping && game.players[0].characters[0] && !game.challenge) { 
     return (
       <div>
+      {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
       <div>Pick a Player to Coop: </div>
       <form onSubmit={handleActOnSubmit} name="coop">
         {coop_assassinate_form}
@@ -749,7 +755,8 @@ console.log("actionChosen: ", actionChosen);
   else if (turn && !game.challenge && !game.actionTaken) { 
     return (
       <div>
-      
+      {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
+
       <h1>Player Page {playeridURL} </h1>
       <h2>You have {coins} coins </h2>
       
@@ -773,6 +780,7 @@ console.log("actionChosen: ", actionChosen);
   } else if (game.challenge && !turn ) { 
     return (
       <div>
+        {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
         
         <h1>Player Page {playeridURL} </h1>        
         <h2>You have {coins} coins </h2>
@@ -793,7 +801,8 @@ console.log("actionChosen: ", actionChosen);
   } else if (game.challenge && turn && blocked) { 
     return (
       <div>
-        
+        {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
+       
         <h1>Player Page {playeridURL} </h1>        
         <h2>You have {coins} coins </h2>
         <span>Challenge or Pass the Block</span> <br></br>
@@ -810,6 +819,7 @@ console.log("actionChosen: ", actionChosen);
   } else {
     return (
       <div>
+        {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
         
         <h1>Player Page {playeridURL} </h1>        
         <h2>You have {coins} coins </h2>

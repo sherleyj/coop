@@ -17,10 +17,9 @@ function App() {
   return (
     <div className="app-container">
       <Router>
-        <Nav/>
         <Switch>
           <GameProvider>
-            
+            <Nav/>
             <Route path='/' exact component={GameIdForm} />
             <Route path='/:gameidURL' exact>
               <Coop />

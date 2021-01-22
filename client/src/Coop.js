@@ -16,6 +16,7 @@ import { get } from 'http';
 function Coop() {
 
     const { gameidURL } = useParams(); 
+    console.log("FROM COOP gameidURL: ", gameidURL)
     // const [gameId, setGameId] = useState(gameidURL);
     const [game, setGame]= useContext(GameContext);
 
@@ -62,6 +63,7 @@ function Coop() {
             let character_1 = p.characters[1];
             let character_0_name = "";
             let character_1_name = "";
+            let dead = !p.active;
             if (!character_0.active) {
                 console.log("character 0 dead.", game.characters[character_0.id].name)
                 character_0_name = game.characters[character_0.id].name;
@@ -75,10 +77,11 @@ function Coop() {
                 turnText = "Your turn!"
             }
             let link = "/" + gameidURL + "/player/" + playerid;
-            return (
+            if (dead) {
+              return (
                 <div>
                 <div key={p.id} className="player"> <Link to={link}>Player {playerid}</Link> 
-                    <span> {turnText}</span>
+                    <span> DEAD </span>
                     <p>Num coins: {p.coins}</p>
                     <span>{character_0_name} </span>
                     <span>{character_1_name} </span>
@@ -87,7 +90,23 @@ function Coop() {
                     
                 </div>
                 </div>
-            );
+              );             
+            }
+            else {
+                return (
+                    <div>
+                    <div key={p.id} className="player"> <Link to={link}>Player {playerid}</Link> 
+                        <span> {turnText}</span>
+                        <p>Num coins: {p.coins}</p>
+                        <span>{character_0_name} </span>
+                        <span>{character_1_name} </span>
+                        <br />
+                        --------------------------------
+                        
+                    </div>
+                    </div>
+                );
+            }
         });
     }
    

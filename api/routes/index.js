@@ -266,6 +266,7 @@ router.post('/challenge', function(req, res) {
             console.log("Challenge: SUCCESS Lose Player!, both are active");
             game.players[game.pTurnId].losePlayer = true;
             game.losePlayer = true;
+            game.challenge = false;
         } else if (c_0.active && game.characters[c_0.id].action != game.actionTaken && !c_1.active) {
             console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
             c_0.active = false;
@@ -293,6 +294,7 @@ router.post('/challenge', function(req, res) {
               game.players[playerId].losePlayer = true;
               game.losePlayer = true;
             }
+            game.challenge = false;
             // Challenge unsuccful so action is resolved. NextTurn is called at resolveAction.
             game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId);
         }
@@ -522,7 +524,6 @@ function resolveAction(game, playerId, action, actOnId) {
       if (actOnId.length && game.players[playerId].coins > 6) {
         game.players[playerId].actionTaken = "coop";
         game.players[playerId].coins -= 7; 
-        game.challenge = true;
         if (game.players[actOnId].characters[0].active && game.players[actOnId].characters[0].active) {
           console.log("player (actOnId) needs to choose which card they lose.")
           game.players[actOnId].losePlayer = true;
@@ -547,6 +548,9 @@ function resolveAction(game, playerId, action, actOnId) {
         // game.players[playerId].exchangeOptions = draw(game, 2);
         
         let exchangeOptions = draw(game, 2);
+        if (exchangeOptions == undefined) {
+          console.log("Draw returned undefined")
+        }
         exchangeOptions.forEach((i) => {
           console.log(i);
           game.characters[i].available -= 1;
@@ -582,7 +586,8 @@ function resolveAction(game, playerId, action, actOnId) {
       console.log("case assassinate")
       game.players[playerId].actionTaken = "assassinate";
       if (actOnId.length && !game.blockedBy) {
-        if (game.players[actOnId[0]].characters[0].active && game.players[actOnId[0]].characters[1].active) {
+        if (game.players[actOnId[0]].characters[0].active && game.players[actOnId[0]].characters[1].active
+          && !game.players[actOnId[0]].losePlayer) { // If actOnId player lost challenge, and is already losing a card then they lose both cards and are out.
           console.log("This player is losing a player: ", actOnId[0])
           game.players[actOnId[0]].losePlayer = true;
           game.losePlayer = true;
@@ -593,6 +598,7 @@ function resolveAction(game, playerId, action, actOnId) {
           game.players[actOnId[0]].characters[1].active = false;
           game.activePlayers -= 1;
           game.players[actOnId[0]].active = false;
+          game = nextTurn(game);
         }
       } 
         
@@ -701,29 +707,40 @@ function shuffle(game) {
 function draw(game, n) {
   try {
 
-    // gather the deck into array.
-    let c = new Array;
+    let totalAvailable = 0;
     game.characters.forEach( (p, i) =>{
-      let a = p.available
-      while(a > 0){
-        c.push(i);
-        a -= 1;
-      }
+      totalAvailable += p.available;
     });
 
-    // console.log(c);
+    if (totalAvailable >= n) {
+      // gather the deck into array.
+      let c = new Array;
+      game.characters.forEach( (p, i) =>{
+        let a = p.available
+        while(a > 0){
+          c.push(i);
+          a -= 1;
+        }
+      });
 
-    // shuffle the deck!
-    for (let i = 0; i < n; i++) {
-      let j = Math.floor(Math.random() * (c.length - i)) + i; // random index from i to c.length - 1
-      // swap with "destructuring assignment" syntax 
-      [c[i], c[j]] = [c[j], c[i]];
-    }
-    
-    // console.log(c);
+      // console.log(c);
+
+      // shuffle the deck!
+      for (let i = 0; i < n; i++) {
+        let j = Math.floor(Math.random() * (c.length - i)) + i; // random index from i to c.length - 1
+        // swap with "destructuring assignment" syntax 
+        [c[i], c[j]] = [c[j], c[i]];
+      }
+      
+      // console.log(c);
     console.log("DRAW output: ", c.slice(0,n))
-  
+    
     return c.slice(0,n);
+  } else {
+    console.log("There are not enough cards to draw: ", n);
+    console.log("available cards: ", totalAvailable);
+    return undefined;
+  }
 
 } catch(e) {
   console.log(e);
