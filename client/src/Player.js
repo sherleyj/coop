@@ -54,7 +54,7 @@ function Player() {
   const getGameAPI = async () => {
     try {
         const data = await fetch(
-            'http://localhost:9000/getGame/' + gameidURL
+            '/getGame/' + gameidURL
         );
 
         const gameFromAPI = await data.json(); 
@@ -81,7 +81,7 @@ function Player() {
 
       console.log("POST! posting game: ", game);
 
-      const data = await fetch('http://localhost:9000/setGame', requestOptions);
+      const data = await fetch('/setGame', requestOptions);
       const gameFromAPI = await data.json();
 
       console.log("POST!! gameFromAPI coins: ", gameFromAPI.players[playerid].coins);
@@ -157,7 +157,7 @@ function Player() {
           body: JSON.stringify(body)
         };
 
-        const data = await fetch('http://localhost:9000/takeTurn', requestOptions);
+        const data = await fetch('/takeTurn', requestOptions);
         const gameFromAPI = await data.json();
         setGame({
           ...gameFromAPI,
@@ -188,7 +188,7 @@ function Player() {
           body: JSON.stringify(body)
         };
 
-        const data = await fetch('http://localhost:9000/challenge', requestOptions);
+        const data = await fetch('/challenge', requestOptions);
         const gameFromAPI = await data.json();
 
         setGame({
@@ -214,7 +214,7 @@ function Player() {
           body: JSON.stringify(body)
         };
 
-        const data = await fetch('http://localhost:9000/challengeBlock', requestOptions);
+        const data = await fetch('/challengeBlock', requestOptions);
         const gameFromAPI = await data.json();
 
         setGame({
@@ -239,7 +239,7 @@ function Player() {
           body: JSON.stringify(body)
         };
 
-        const data = await fetch('http://localhost:9000/block', requestOptions);
+        const data = await fetch('/block', requestOptions);
         const gameFromAPI = await data.json();
 
         setGame({
@@ -386,7 +386,7 @@ function Player() {
           body: JSON.stringify(body)
         };
 
-        const data = await fetch('http://localhost:9000/pass', requestOptions);
+        const data = await fetch('/pass', requestOptions);
         const gameFromAPI = await data.json();
 
         setGame({
@@ -412,7 +412,7 @@ function Player() {
           body: JSON.stringify(body)
         };
 
-        const data = await fetch('http://localhost:9000/loseCharacter', requestOptions);
+        const data = await fetch('/loseCharacter', requestOptions);
         const gameFromAPI = await data.json();
 
         setGame({

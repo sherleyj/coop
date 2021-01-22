@@ -37,7 +37,7 @@ function Coop() {
     const getGameAPI = async () => {
         try {
             const data = await fetch(
-                'http://localhost:9000/getGame/' + gameidURL
+                '/getGame/' + gameidURL
             );
     
             const gameFromAPI = await data.json(); 

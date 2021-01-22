@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "start": "cd api & npm start",
+    "heroku-postbuild": "cd client && npm start && cd ../redis-6.0.6/src && ./redis-server"
+  }
+}
