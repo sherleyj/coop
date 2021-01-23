@@ -12,7 +12,7 @@
 
 # production
 /build
-/redis-6.0.6
+# /redis-6.0.6
 
 # misc
 .DS_Store
