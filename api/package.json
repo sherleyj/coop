@@ -1,9 +1,10 @@
 {
-  "name": "api",
+  "name": "cooplikechikens",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "cd client && npm install && npm run build",
+    "heroku-postbuild": "../redis-6.0.6/src/redis-server && cd ../api/routes && node index.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

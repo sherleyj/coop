@@ -4,6 +4,7 @@ const Redis = require("ioredis");
 const bodyParser = require("body-parser");
 const redis = new Redis();
 const app = express();
+const path = require('path')
 
 const challenge_actions = ['tax','assassinate','steal','exchange','block'];
 
@@ -748,5 +749,12 @@ function draw(game, n) {
 
   
 }
+
+// Serve static files from the React frontend app
+app.use(express.static(path.join(__dirname, 'client/build')))
+// Anything that doesn't match the above, send back index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + 'client/build/index.html'))
+})
 
 module.exports = router;
