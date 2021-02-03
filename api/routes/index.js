@@ -110,31 +110,31 @@ router.get('/getGame/:id', function(req, res, next) {
     ],
     "characters": [
       {
-        "name": "Duke",
+        "name": "Duke", // chickens
         "action": "tax",
         "block": "aid",
         "available": 3
       },
       {
-        "name": "Assassin",
+        "name": "Assassin", // fox 
         "action": "assassinate",
         "block": "",
         "available": 3
       },
       {
-        "name": "Ambassador",
+        "name": "Ambassador", // chicks
         "action": "exchange",
         "block": "steal",
         "available": 3
       },
       {
-        "name": "Captain",
+        "name": "Captain", // rooster
         "action": "steal",
         "block": "steal",
         "available": 3
       },
       {
-        "name": "Contessa",
+        "name": "Contessa", // farmer
         "action": "",
         "block": "assassinate",
         "available": 3
@@ -751,10 +751,10 @@ function draw(game, n) {
 }
 
 // Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, 'client/build')))
-// Anything that doesn't match the above, send back index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + 'client/build/index.html'))
-})
+app.use(express.static(path.join(__dirname, 'build')))
+// // Anything that doesn't match the above, send back index.html
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 module.exports = router;
