@@ -36,11 +36,13 @@ function Coop() {
 
     const getGameAPI = async () => {
         try {
+	    console.log("getting game");
             const data = await fetch(
-                '/getGame/' + gameidURL
+                '/api/getGame/' + gameidURL
             );
-    
-            const gameFromAPI = await data.json(); 
+    	    console.log("lalala");
+            const gameFromAPI = await data.json();
+	    console.log("game from api:", gameFromAPI);
             setGame({
               ...gameFromAPI,
               players : [...gameFromAPI.players],
@@ -49,7 +51,7 @@ function Coop() {
     
             console.log("GETGAME, gameFromAPI:", gameFromAPI)
         } catch (e) {
-            console.log(e);
+            console.log("Exception caught: ",e);
             return <div>Error: {e.message}</div>;
         }
     }; 
