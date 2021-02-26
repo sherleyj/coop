@@ -12,11 +12,12 @@ const challenge_actions = ['tax','assassinate','steal','exchange','block'];
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+console.log("TEST");
 /* GET home page. */
 // TO DO: Remove actionTaken and turn from player objects
-router.get('/getGame/:id', function(req, res, next) {
+router.get('/api/getGame/:id', function(req, res, next) {
   const gameid = req.params.id;
-
+  console.log("** In GetGame **");
   let game = {
     "gameId": gameid,
     "numPlayers": 6,
@@ -163,7 +164,7 @@ router.get('/getGame/:id', function(req, res, next) {
 
 });
 
-router.post('/setGame', function(req, res) {
+router.post('/api/setGame', function(req, res) {
   // const gameid = req.params.id;
 
   const gameId = req.body.gameId;
@@ -182,7 +183,7 @@ router.post('/setGame', function(req, res) {
 
 });
  
-router.post('/takeTurn', function(req, res) {
+router.post('/api/takeTurn', function(req, res) {
   try {
     const gameId = req.body.gameId;
     let game = {};
@@ -244,7 +245,7 @@ router.post('/takeTurn', function(req, res) {
 
 });
 
-router.post('/challenge', function(req, res) {
+router.post('/api/challenge', function(req, res) {
   console.log("CHALLENGE!");
   const challenge_actions = ['tax','assassinate','steal','exchange','block'];
   
@@ -317,7 +318,7 @@ router.post('/challenge', function(req, res) {
 
 });
 
-router.post('/challengeBlock', function(req, res) {
+router.post('/api/challengeBlock', function(req, res) {
   console.log("CHALLENGE BLOCK!");
   const challenge_actions = ['tax','assassinate','steal','exchange','block'];
   
@@ -392,7 +393,7 @@ router.post('/challengeBlock', function(req, res) {
     });
 });
 
-router.post('/block', (req, res) => {
+router.post('/api/block', (req, res) => {
   let gameId = req.body.gameId;
   let playerId = req.body.playerId;
 
@@ -415,7 +416,7 @@ router.post('/block', (req, res) => {
   });
 });
 
-router.post('/pass', (req, res) => {
+router.post('/api/pass', (req, res) => {
   let gameId = req.body.gameId;
   let playerId = req.body.playerId;
 
@@ -446,7 +447,7 @@ router.post('/pass', (req, res) => {
   });
 });
 
-router.post('/loseCharacter', (req, res) => {
+router.post('/api/loseCharacter', (req, res) => {
   let gameId = req.body.gameId;
   let playerId = req.body.playerId;
   let characterToLose = req.body.characterToLose;
@@ -751,10 +752,11 @@ function draw(game, n) {
 }
 
 // Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, 'client/build')))
+app.use(express.static(path.join(__dirname,'..', 'build')));
 // Anything that doesn't match the above, send back index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + 'client/build/index.html'))
-})
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname,'..', 'build', 'index.html'));
+  //res.sendFile(path.join(__dirname + '../build/index.html'))
+});
 
 module.exports = router;
