@@ -39,7 +39,6 @@ function Player() {
   // TODO: Can one Duke block another Duke's foreign aid?
 
   useEffect (() => {
-    console.log("PLAYER: game not set, grabbing it! ", gameidURL ); 
     getGameAPI();
   }, []);
 
@@ -64,7 +63,6 @@ function Player() {
           characters : [...gameFromAPI.characters]
         });
 
-        // console.log("getGame, gameFromAPI:", gameFromAPI)
     } catch (e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -79,12 +77,10 @@ function Player() {
         body: JSON.stringify(game)
       };
 
-      console.log("POST! posting game: ", game);
 
       const data = await fetch('/api/setGame', requestOptions);
       const gameFromAPI = await data.json();
 
-      console.log("POST!! gameFromAPI coins: ", gameFromAPI.players[playerid].coins);
 
     } catch (e) {
         console.log(e);
@@ -121,7 +117,6 @@ function Player() {
   }
       // // game.players[playerid].passed = true;
   function action(e) {
-    console.log("*** ACTION CHOSEN")
 
     const action = e.target.name;
     game.actionTaken = action;
@@ -135,13 +130,11 @@ function Player() {
     // }
   }
   
-  console.log(actOnId);
   const takeAction = async(action) => {
     // e.preventDefault();
     if (game.players[playerid].turn && !game.challenge) {
       let body = {};
       // const action = e.target.name;
-      console.log("ACTION: ", action);
 
       if (action == "steal" || action == "coop" || action == "exchange" || action == "assassinate" && actOnId) {
         body = {"gameId": gameidURL,  "playerId": playerid, "action": action, "actOnId": actOnId};
@@ -149,7 +142,6 @@ function Player() {
         body = {"gameId": gameidURL,  "playerId": playerid, "action": action, "actOnId": []};
       }
 
-      console.log("POST takeTurn ", body);
       try {
         const requestOptions = {
           method: 'POST',
@@ -165,10 +157,6 @@ function Player() {
           characters : [...gameFromAPI.characters]
         });
 
-        console.log("game from API:");
-        console.log(gameFromAPI);
-
-        console.log(game);
       } catch(e) {
           console.log(e);
           return <div>Error: {e.message}</div>;
@@ -180,7 +168,6 @@ function Player() {
     
     if (can_challenge) {
       let body = {"gameId": gameidURL, "playerId": playerid}
-      console.log("POST: ", body);
       try {
         const requestOptions = {
           method: 'POST',
@@ -206,7 +193,6 @@ function Player() {
   const challengeBlock = async(action) => {
     
       let body = {"gameId": gameidURL, "playerId": playerid}
-      console.log("POST: ", body);
       try {
         const requestOptions = {
           method: 'POST',
@@ -231,7 +217,6 @@ function Player() {
   const block = async(action) => {
     if (can_block) {
       let body = {"gameId": gameidURL, "playerId": playerid}
-      console.log("POST: ", body);
       try {
         const requestOptions = {
           method: 'POST',
@@ -257,7 +242,6 @@ function Player() {
 
   function _block(e) {
     e.preventDefault();
-    console.log("***BLOCK***");
 
     let turnPlayer = game.players[game.pTurnId];
     let blockingPlayer = game.players[playerid];
@@ -274,7 +258,6 @@ function Player() {
       if (turnPlayer.actionTaken == 'steal') {
         turnPlayer.coins = turnPlayer.coins - 2;
         blockingPlayer.coins = blockingPlayer.coins + 2;
-        console.log("turnplayer coins: " + turnPlayer.coins + " blocking player coins: " + blockingPlayer.coins);
       }
 
       // nextTurn();
@@ -289,7 +272,6 @@ function Player() {
   function challenge_block(e) {
     e.preventDefault();
 
-    console.log("***CHALLENGE BLOCK***");
 
     // let blockingPlayer = game.players[game.players[game.pTurnId].blockedBy];
     let blockingPlayer = game.players[game.blockedBy];
@@ -299,15 +281,11 @@ function Player() {
     let c_0 =  blockingPlayer.characters[0]; 
     let c_1 =  blockingPlayer.characters[1];
     let success = false;
-    
-    console.log("player 0: ", c_0.id);
-    console.log("player 1: ", c_1.id);
 
     if (can_block) {
       if (c_0.active && c_1.active
       && game.characters[c_0.id].block != turnPlayer.actionTaken 
       && game.characters[c_1.id].block != turnPlayer.actionTaken) {
-        console.log("Challenge Block: SUCCESS Lose Player!, both are active");
         blockingPlayer.losePlayer = true;
         success = true;
         // if (blockingPlayer.actionTaken == 'tax') {
@@ -315,14 +293,12 @@ function Player() {
         // }
       } else if (c_0.active && game.characters[c_0.id].block != turnPlayer.actionTaken
         && !c_1.active) {
-        console.log("Challenge Block: SUCCESS Lose Player!, only 0 is active");
         c_0.active = false;
         blockingPlayer.active = false;
         blockingPlayer.influence -= 1;
         success = true;
         // nextTurn();
       } else if (c_1.active && game.characters[c_1.id].block != turnPlayer.actionTaken && !c_0.active) {
-        console.log("Challenge Block: SUCCESS Lose Player!, only 1 is active");
         c_1.active = false;
         blockingPlayer.active = false;
         blockingPlayer.influence -= 1;
@@ -331,19 +307,15 @@ function Player() {
       } else {
         // challenge failed.
         // player that challenged the block (the player whose turn it currently is) loses a player!
-        console.log("*** players id lose player!!!")
         game.players[playerid].losePlayer = true;
       }
     }
 
     if (success) {
       if (blockingPlayer.actionTaken == 'steal') {
-        console.log("BLOCK FAILED. giving $ back");
         blockingPlayer.coins = blockingPlayer.coins - 2;        
         turnPlayer.coins = turnPlayer.coins + 2;
 
-        console.log("GAME BELOW ->")
-        console.log(game);
       }
     }
 
@@ -402,9 +374,8 @@ function Player() {
   }
 
   const loseCharacterAPI = async(characterToLose) => {
-    if (can_challenge || can_block) {
+    if (losePlayer) {
       let body = {"gameId": gameidURL, "playerId": playerid, "characterToLose": characterToLose}
-
       try {
         const requestOptions = {
           method: 'POST',
@@ -414,7 +385,6 @@ function Player() {
 
         const data = await fetch('/api/loseCharacter', requestOptions);
         const gameFromAPI = await data.json();
-
         setGame({
           ...gameFromAPI,
           players : [...gameFromAPI.players],
@@ -436,14 +406,12 @@ function Player() {
   function handleChooseCharChange(e) {
     e.preventDefault();
     setChooseCharId(e.target.value);
-    console.log("handleChooseCharChange, e.target.value ", e.target.value, "choosecharid: ", chooseCharId);
 
   }
 
   function handleLoseCharSubmit(e) {
     e.preventDefault();
     setChooseCharId(e.target.value);
-    console.log("^^^^^^^^^^^^^^^^^^^^^^^^^ ", chooseCharId);
     // game.players[playerid].characters[parseInt(chooseCharId)].active = false;
     // game.players[playerid].losePlayer = false;
     // game.players[playerid].influence -= 1;
@@ -453,22 +421,17 @@ function Player() {
   }
 
   function handleSwapCard(e) {
-    console.log("handleSwapCard")
     e.preventDefault();
     setChooseCharId(e.target.value);
-    console.log("chooseCharId: ", chooseCharId);
     game.players[playerid].characters[chooseCharId].swap = game.players[playerid].characters[chooseCharId].id;
     updateGame();
     // takeAction(e.target.name);
     setChooseCharId(null);
-    console.log("handleSwapCard, chooseCharId.id: ", game.players[playerid].characters[chooseCharId].id);
   } 
 
   function handleActOnChange(e) {
     // actOnId = e.target.value;
     setActOnChecked(e.target.value);
-    console.log("in handleActOnChange actOnId[0]", actOnChecked);
-    console.log("actOnId[0] == e.target.value ", actOnChecked == e.target.value);
 
   }
 
@@ -479,7 +442,6 @@ function Player() {
     actOnId[0] = actOnChecked;
     setActOnId(actOnId);
     
-    console.log("in handleActOnSubmit, actOnId: ", actOnId);
     takeAction(e.target.name);
     setActOnId([]);
   }
@@ -488,23 +450,18 @@ function Player() {
   function handleExchangePicksChange(e){
     // console.log(exchangePicks);
 
-    console.log("game.players[playerid].influence: ", game.players[playerid].influence)
     const value = !exchangePicks[e.target.name];
-    console.log("****HANDLE CHANGE numSelected: ", numSelected);
     if (numSelected < game.players[playerid].influence && value) {
-      console.log("CHECK!");
       exchangePicks[e.target.name] = !exchangePicks[e.target.name];
       setExchangePicks(exchangePicks);
       setNumSelected(numSelected + 1);
 
     }
     if (!value) {
-      console.log("UNCHECK!");
       exchangePicks[e.target.name] = !exchangePicks[e.target.name];
       setExchangePicks(exchangePicks);
       setNumSelected(numSelected - 1);
     } 
-    console.log(exchangePicks);
   }
 
   function handleExchangePicksSubmit(e){
@@ -521,7 +478,6 @@ function Player() {
       }
     });
 
-    console.log("IN Submit, actOnId:", actOnId);
     takeAction('exchange');
     setActOnId([]);
   }
@@ -592,9 +548,7 @@ function Player() {
 
   let exchange_form = "";
   if (game.players) {
-    // console.log(exchangePicks);
     exchange_form = game.players[game.pTurnId].characters.map( (p, i) => {
-      // console.log("**** ",p);
       if (p.active) {  // Add active property to player.  Make first active player checked.
         return ( 
           <div>
@@ -647,7 +601,6 @@ function Player() {
     }
   }
 
-  // console.log("can_challenge: ", can_challenge);
 
   useInterval(async () => {
     if (!turn || (turn && game.challenge)) {
@@ -655,8 +608,6 @@ function Player() {
     }
   }, 5000);
 
-console.log(game);
-console.log("exchanging: ", exchanging);
   // ******* RENDER ******* 
 
   if (!alive) {
