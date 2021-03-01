@@ -111,31 +111,31 @@ router.get('/api/getGame/:id', function(req, res, next) {
     ],
     "characters": [
       {
-        "name": "Duke",
+        "name": "Duke", // chickens
         "action": "tax",
         "block": "aid",
         "available": 3
       },
       {
-        "name": "Assassin",
+        "name": "Assassin", // fox 
         "action": "assassinate",
         "block": "",
         "available": 3
       },
       {
-        "name": "Ambassador",
+        "name": "Ambassador", // chicks
         "action": "exchange",
         "block": "steal",
         "available": 3
       },
       {
-        "name": "Captain",
+        "name": "Captain", // rooster
         "action": "steal",
         "block": "steal",
         "available": 3
       },
       {
-        "name": "Contessa",
+        "name": "Contessa", // farmer
         "action": "",
         "block": "assassinate",
         "available": 3
@@ -182,7 +182,105 @@ router.post('/api/setGame', function(req, res) {
   });
 
 });
- 
+
+router.post('/api/createGame', function(req, res) {
+  // const gameid = req.params.id;
+  const gameId = req.body.gameId;
+  let numPlayers = parseInt(req.body.numPlayers);
+  console.log("** In createGame **");
+  let game = {
+    "gameId": gameId,
+    "numPlayers": numPlayers,
+    "challenge": false,
+    "blockedBy": "",
+    "actionTaken": "",
+    "pTurnId": 0,
+    "actOnId": [],
+    "passed": 0,
+    "activePlayers": numPlayers,
+    "losePlayer": false,
+    "players": [],
+    "characters": [
+      {
+        "name": "Duke", // chickens
+        "action": "tax",
+        "block": "aid",
+        "available": 3
+      },
+      {
+        "name": "Assassin", // fox 
+        "action": "assassinate",
+        "block": "",
+        "available": 3
+      },
+      {
+        "name": "Ambassador", // chicks
+        "action": "exchange",
+        "block": "steal",
+        "available": 3
+      },
+      {
+        "name": "Captain", // rooster
+        "action": "steal",
+        "block": "steal",
+        "available": 3
+      },
+      {
+        "name": "Contessa", // farmer
+        "action": "",
+        "block": "assassinate",
+        "available": 3
+      }
+    ]
+  };
+
+  console.log("Game so far:", game);
+  let id = 0;
+try {
+  while(numPlayers > 0) {
+    console.log("loop");
+    game.players.push(
+      {
+      "id": id,
+      "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
+      "influence": 2,
+      "coins": 3,
+      "turn": false,
+      "challenge": false,
+      "passed": false,
+      "actionTaken":"",
+      "blockedBy":"",
+      "losePlayer": false,
+      "active": true
+    });
+    numPlayers = numPlayers - 1;
+    id = id + 1;
+    console.log("pushed");
+  }
+} catch(e) {
+  console.log(e);
+}
+  game.players[0].turn = true;
+
+  console.log("added players: ", game);
+
+  game = shuffle(game);
+
+  console.log("shuffled and dealt cards: ", game);
+
+  redis.set(gameId, JSON.stringify(game));
+
+  redis.get(gameId).then(function (result) {
+    console.log("this is the result: " + result); 
+    resJSON = JSON.parse(result);
+    res.json(resJSON);
+  }).catch(function (error) {
+    console.log(error);
+    res.send("There was an error.");
+  });
+
+});
+
 router.post('/api/takeTurn', function(req, res) {
   try {
     const gameId = req.body.gameId;
@@ -663,6 +761,7 @@ function shuffle(game) {
   try {
 
     // gather the deck into array.
+    // ex: [0,0,0,1,1,1,2,2,2,3,3,3,4,4,4]
     let c = new Array;
     game.characters.forEach( (p, i) =>{
       let a = p.available
