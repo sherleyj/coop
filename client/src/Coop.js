@@ -66,6 +66,7 @@ function Coop() {
             let character_0_name = "";
             let character_1_name = "";
             let dead = !p.active;
+            let winner = game.winner == p.id ? true: false;
             if (!character_0.active) {
                 console.log("character 0 dead.", game.characters[character_0.id].name)
                 character_0_name = game.characters[character_0.id].name;
@@ -93,6 +94,21 @@ function Coop() {
                 </div>
                 </div>
               );             
+            }
+            else if (winner) {
+                return (
+                    <div>
+                    <div key={p.id} className="player"> <Link to={link}>Player {playerid}</Link> 
+                        <span> WINNER!!! </span>
+                        <p>Num coins: {p.coins}</p>
+                        <span>{character_0_name} </span>
+                        <span>{character_1_name} </span>
+                        <br />
+                        --------------------------------
+                        
+                    </div>
+                    </div>
+                  );               
             }
             else {
                 return (

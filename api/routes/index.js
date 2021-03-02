@@ -29,6 +29,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
     "passed": 0,
     "activePlayers": 6,
     "losePlayer": false,
+    "winner": "",
     "players": [
       {
         "id": 0,
@@ -439,40 +440,46 @@ router.post('/api/challengeBlock', function(req, res) {
           && game.characters[c_0.id].block != game.actionTaken 
           && game.characters[c_1.id].block != game.actionTaken) {
             console.log("Challenge: SUCCESS Lose Player!, both are active");
-            game.players[game.blockedBy].losePlayer = true;
-            game.losePlayer = true;
+            // game.players[game.blockedBy].losePlayer = true;
+            // game.losePlayer = true;
+            game = loseInfluence(game, game.blockedBy, false); /////////////////////////////////////
             game.challenge = false;
-            game = resolveAction(game, game.pTurnId, game.actionTaken, []);
+            game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId);
         } else if (c_0.active && game.characters[c_0.id].block != game.actionTaken && !c_1.active) {
             console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
-            c_0.active = false;
-            game.players[game.blockedBy].active = false;
-            game.activePlayers -= 1;
-            game = resolveAction(game, game.pTurnId, game.actionTaken, []);
+            // c_0.active = false;
+            // game.players[game.blockedBy].active = false;
+            // game.activePlayers -= 1;
+            game = loseInfluence(game, game.blockedBy, false); /////////////////////////////////////
+            game.challenge = false;
+            game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId);
         } else if (c_1.active && game.characters[c_1.id].block != game.actionTaken && !c_0.active) {
             console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
-            c_1.active = false;
-            game.players[game.blockedBy].active = false;
-            game.activePlayers -= 1;
-            game = resolveAction(game, game.pTurnId, game.actionTaken, []);
+            // c_1.active = false;
+            // game.players[game.blockedBy].active = false;
+            // game.activePlayers -= 1;
+            game = loseInfluence(game, game.blockedBy, false); /////////////////////////////////////
+            game.challenge = false;
+            game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId);
         } else { // challenger loses player
             console.log("Challenger of block (pTurnId player) loses player")
-            c_0 = game.players[game.pTurnId].characters[0]; 
-            c_1 =  game.players[game.pTurnId].characters[1];
-            if (!c_1.active || !c_0.active) {
-              console.log("Player DEAD.")
-              game.players[game.pTurnId].active = false;
-              game.activePlayers -= 1;
-              c_0.active = false;
-              c_1.active = false;
-              game = nextTurn(game); 
-            } else {
-              console.log("Player loses card.")
-              game.players[game.pTurnId].losePlayer = true;
-              game.losePlayer = true;
-              game.challenge = false;
-            }
-            // game = nextTurn(game); **** UNCOMMENT WHEN LOSE PLAYER IS MOVED TO SERVER
+            // c_0 = game.players[game.pTurnId].characters[0]; 
+            // c_1 =  game.players[game.pTurnId].characters[1];
+            // if (!c_1.active || !c_0.active) {
+            //   console.log("Player DEAD.")
+            //   game.players[game.pTurnId].active = false;
+            //   game.activePlayers -= 1;
+            //   c_0.active = false;
+            //   c_1.active = false;
+            //   game = nextTurn(game); 
+            // } else {
+            //   console.log("Player loses card.")
+            //   game.players[game.pTurnId].losePlayer = true;
+            //   game.losePlayer = true;
+            //   game.challenge = false;
+            // }
+            game = loseInfluence(game, game.pTurnId, true); /////////////////////////////////////
+
         }
       // }
       redis.set(gameId, JSON.stringify(game));
@@ -606,7 +613,7 @@ function resolveAction(game, playerId, action, actOnId) {
         if (game.players[actOnId].coins > 1){
           game.players[actOnId].coins -= 2;
           game.players[playerId].coins += 2;
-        } else {
+        } else if (game.players[actOnId].coins > 0) {
           game.players[actOnId].coins -= 1;
           game.players[playerId].coins += 1;
         }
@@ -624,18 +631,19 @@ function resolveAction(game, playerId, action, actOnId) {
       if (actOnId.length && game.players[playerId].coins > 6) {
         game.players[playerId].actionTaken = "coop";
         game.players[playerId].coins -= 7; 
-        if (game.players[actOnId].characters[0].active && game.players[actOnId].characters[0].active) {
-          console.log("player (actOnId) needs to choose which card they lose.")
-          game.players[actOnId].losePlayer = true;
-          game.losePlayer = true;
-        } else  {
-          console.log("player (actOnId) is now DEAD, next turn.")
-          game.players[actOnId].characters[1].active = false;
-          game.players[actOnId].characters[0].active = false;
-          game.players[actOnId].active = false
-          game.activePlayers -= 1;
-          game = nextTurn(game);
-        }
+        // if (game.players[actOnId].characters[0].active && game.players[actOnId].characters[0].active) {
+        //   console.log("player (actOnId) needs to choose which card they lose.")
+        //   game.players[actOnId].losePlayer = true;
+        //   game.losePlayer = true;
+        // } else  {
+        //   console.log("player (actOnId) is now DEAD, next turn.")
+        //   game.players[actOnId].characters[1].active = false;
+        //   game.players[actOnId].characters[0].active = false;
+        //   game.players[actOnId].active = false
+        //   game.activePlayers -= 1;
+        //   game = nextTurn(game);
+        // }
+        game = loseInfluence(game, actOnId, true);
       } else {
         console.log("You do not have enough coins to coop! ");
         game = resetAction(game, playerId);
@@ -686,23 +694,66 @@ function resolveAction(game, playerId, action, actOnId) {
       console.log("case assassinate")
       game.players[playerId].actionTaken = "assassinate";
       if (actOnId.length && !game.blockedBy) {
-        if (game.players[actOnId[0]].characters[0].active && game.players[actOnId[0]].characters[1].active
-          && !game.players[actOnId[0]].losePlayer) { // If actOnId player lost challenge, and is already losing a card then they lose both cards and are out.
-          console.log("This player is losing a player: ", actOnId[0])
-          game.players[actOnId[0]].losePlayer = true;
-          game.losePlayer = true;
-          console.log("updated loose player for them: ", game);
-        } else {
-          console.log("Player DEAD!: ", actOnId[0])
-          game.players[actOnId[0]].characters[0].active = false;
-          game.players[actOnId[0]].characters[1].active = false;
-          game.activePlayers -= 1;
-          game.players[actOnId[0]].active = false;
-          game = nextTurn(game);
-        }
+        // if (game.players[actOnId[0]].characters[0].active && game.players[actOnId[0]].characters[1].active
+        //   && !game.players[actOnId[0]].losePlayer) { // If actOnId player lost challenge, and is already losing a card then they lose both cards and are out.
+        //   console.log("This player is losing a player: ", actOnId[0])
+        //   game.players[actOnId[0]].losePlayer = true;
+        //   game.losePlayer = true;
+        //   console.log("updated loose player for them: ", game);
+        // } else {
+        //   console.log("Player DEAD!: ", actOnId[0])
+        //   game.players[actOnId[0]].characters[0].active = false;
+        //   game.players[actOnId[0]].characters[1].active = false;
+        //   game.activePlayers -= 1;
+        //   game.players[actOnId[0]].active = false;
+
+        //   // check for winner
+        //   if (game.activePlayers == 1) {
+        //     game.players.forEach((p) => {
+        //       if (p.active) {
+        //         game.winner = p.id;
+        //       }
+        //     });
+        //   } else {
+        //     game = nextTurn(game);
+        //   }
+        // }
+
+        game = loseInfluence(game, actOnId[0], true)
       } 
         
       break;
+  }
+
+  return game;
+}
+
+function loseInfluence(game, playerId, goToNextTurn) {
+  if (game.players[playerId].characters[0].active && game.players[playerId].characters[0].active
+    && !game.players[playerId].losePlayer) { 
+    console.log("player needs to choose which card they lose.")
+    game.players[playerId].losePlayer = true;
+    game.losePlayer = true;
+  } else  {
+    console.log("player is now DEAD");
+    game.players[playerId].characters[1].active = false;
+    game.players[playerId].characters[0].active = false;
+    game.players[playerId].active = false;
+    game.activePlayers -= 1;
+
+    // check for winner
+    if (game.activePlayers == 1) {
+      game.players.forEach((p) => {
+        if (p.active) {
+          console.log("WINNER!!");
+          game.winner = p.id;
+        }
+      });
+    } 
+    if (goToNextTurn && game.activePlayers > 1) {
+      game = nextTurn(game);
+    }
+    
   }
 
   return game;
@@ -733,6 +784,7 @@ function nextTurn(game) {
     p.challenge = false;
     p.actionTaken = "";
   })
+
   console.log("in nextTurn, game:", game);
   
   return game;

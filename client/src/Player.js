@@ -141,6 +141,7 @@ function Player() {
       } else {
         body = {"gameId": gameidURL,  "playerId": playerid, "action": action, "actOnId": []};
       }
+      console.log("** POST takeAction: ", body);
 
       try {
         const requestOptions = {
@@ -376,6 +377,7 @@ function Player() {
   const loseCharacterAPI = async(characterToLose) => {
     if (losePlayer) {
       let body = {"gameId": gameidURL, "playerId": playerid, "characterToLose": characterToLose}
+      console.log("** POST loseCharacterAPI: ", body);
       try {
         const requestOptions = {
           method: 'POST',
@@ -484,6 +486,7 @@ function Player() {
   
   let coins = useGetNestedObject(game, ['players', playerid, 'coins']);
   const alive = useGetNestedObject(game, ['players', playerid, 'active']);
+  const winner = game.winner == playerid ? true: false;
   const turn = useGetNestedObject(game, ['players', playerid, 'turn']) ? "Your turn!" : "";
   // const waitingOnMe = useGetNestedObject(game, ['waitingOnId']) == playerid ? true : false;
   const losePlayer = useGetNestedObject(game, ['players', playerid, 'losePlayer']);
@@ -624,6 +627,22 @@ function Player() {
       </div>
     );
   }
+  else if (winner) {
+    return (
+      <div>
+          {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
+          
+          <h1>Player Page {playeridURL} </h1>        
+          <h2>You have {coins} coins </h2>
+          <h2>You are the WINNER! </h2>
+
+          <h2>Characters</h2>
+          <div>{character_0_name} { (character_0_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+          <div>{character_1_name} { (character_1_active) ? <span>- Active</span> : <span>- Dead</span> } </div>
+      
+        </div>
+    );
+  }
   else if (exchanging && !actOnId.length && !game.challenge) {
     // form with exchangeOptions
     return(
@@ -666,7 +685,7 @@ function Player() {
     );
   }
   // steal form.  Choose who to steal from.
-  else if (stealing && game.players[0].characters[0] && !game.challenge) { 
+  else if (stealing && game.players[0].characters[0] && !game.losePlayer && !game.challenge) { 
     return (
       <div>
       {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
@@ -677,7 +696,7 @@ function Player() {
       </form>
       </div>
     )
-  } else if (assassinating && !game.actOnId.length && !game.challenge) {
+  } else if (assassinating && !game.actOnId.length && game.losePlayer && !game.challenge) {
     return (
       <div>
       {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
@@ -690,7 +709,7 @@ function Player() {
     )
   }
   // challenge check does not work here since you cannot challenge a coop.
-  else if (cooping && game.players[0].characters[0] && !game.challenge) { 
+  else if (cooping && game.players[0].characters[0] && !game.challenge && coins > 7 && !game.losePlayer) { 
     return (
       <div>
       {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
