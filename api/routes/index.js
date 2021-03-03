@@ -35,6 +35,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 0,
         "characters": [{"id": 2, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "playerName": "",
         "coins": 2,
         "turn": true,
         "challenge": false,
@@ -48,6 +49,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 1,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "playerName": "",
         "coins": 2,
         "turn": false,
         "challenge": false,
@@ -61,6 +63,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 2,
         "characters": [{"id": 3, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "playerName": "",
         "coins": 2,
         "turn": false,
         "challenge": false,
@@ -74,6 +77,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 3,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "playerName": "",
         "coins": 2,
         "turn": false,
         "challenge": false,
@@ -87,6 +91,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 4,
         "characters":[{"id": 4, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "playerName": "",
         "coins": 2,
         "turn": false,
         "challenge": false,
@@ -100,6 +105,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 5,
         "characters": [{"id": 2, "active": true}, {"id": 0, "active": true}],
         "influence": 2,
+        "playerName": "",
         "coins": 2,
         "turn": false,
         "challenge": false,
@@ -184,6 +190,28 @@ router.post('/api/setGame', function(req, res) {
 
 });
 
+router.post('/api/updatePlayerName', function(req, res) {
+  // const gameid = req.params.id;
+
+  const gameId = req.body.gameId;
+  const playerId = req.body.playerId;
+  const playerName = req.body.playerName;
+  console.log("****** POST updatePlayerName! GameId: ", gameId);
+
+  redis.get(gameId).then(function (result) {
+    console.log("this is the result: " + result); 
+    game = JSON.parse(result);
+    game.players[playerId].playerName = playerName;
+
+    redis.set(gameId, JSON.stringify(game));
+    res.json(game);
+  }).catch(function (error) {
+    console.log(error);
+    res.send("There was an error.");
+  });
+
+});
+
 router.post('/api/createGame', function(req, res) {
   // const gameid = req.params.id;
   const gameId = req.body.gameId;
@@ -245,6 +273,7 @@ try {
       "id": id,
       "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
       "influence": 2,
+      "playerName": "",
       "coins": 2,
       "turn": false,
       "challenge": false,
