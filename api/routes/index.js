@@ -118,7 +118,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
     ],
     "characters": [
       {
-        "name": "Duke", // chickens
+        "name": "Duke", // chickens/ Hen
         "action": "tax",
         "block": "aid",
         "available": 3
@@ -142,7 +142,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "available": 3
       },
       {
-        "name": "Contessa", // farmer
+        "name": "Contessa", // dog
         "action": "",
         "block": "assassinate",
         "available": 3
@@ -319,6 +319,7 @@ router.post('/api/takeTurn', function(req, res) {
     const action = req.body.action;
     const actOnId = req.body.actOnId;
     // const challenge = req.body.challenge;
+    const can_challenge = (action == "exchange" || action == "steal" || action == "assassinate" || action == "aid" || action == "tax")? true : false;
 
     redis.get(gameId).then(function (result) {
       resJSON = JSON.parse(result);
@@ -330,30 +331,68 @@ router.post('/api/takeTurn', function(req, res) {
       if (game.pTurnId == playerId) {
         game.actionTaken = action;
         console.log("Action Taken: ", action);
+        game.players[playerId].actionTaken = action;
         // allow for challenge before taking action
         // exchange: Challenge occurs before actOnId is filled (the card you are selecting to keep)
-        // steal: must select actOnId before challenge mode
+        // steal & assassinate: must select actOnId before challenge mode. (You should know who is being assassinated or stolen from, which influences if you want to challenge or not)
         // coop: must select actOnId before resolving action.  No challenge mode, this action cannot be challenged.
-        if (!challenge && !game.passed && (action == "exchange" || action == "aid" || action == "tax" || action == "steal" || action == "coop" || action == "assassinate")) {
-          if (action == "steal" || action == "assassinate") { 
-            if (actOnId.length) {
-              game.challenge = true;
-              game.actOnId[0] = actOnId;
-            }
-          } else if (action == "coop") {
-            console.log("action == coop");
-            if (actOnId.length) {
-              console.log("actOnId.length: ", actOnId.length);
-              game.actOnId[0] = actOnId;
+        // if (!challenge && !game.passed && (action == "exchange" || action == "aid" || action == "tax" || action == "steal" || action == "coop" || action == "assassinate")) {
+        // if (!challenge && !game.passed && !(action == "income")) {
+        //   console.log("a");
+        //   if (action == "steal" || action == "assassinate") { 
+        //     if (actOnId.length) {
+        //       game.challenge = true;
+        //       game.actOnId[0] = actOnId;
+        //     }
+        //   } else if (action == "coop") {
+        //     console.log("action == coop");
+        //     if (actOnId.length) {
+        //       console.log("actOnId.length: ", actOnId.length);
+        //       game.actOnId[0] = actOnId;
+        //       game = resolveAction(game, playerId, action, actOnId);
+        //     }
+        //   } else {
+        //     console.log("b");
+        //     game.challenge = true;
+        //   }
+        // } else {
+        //   console.log("c");
+        //   game.actOnId = actOnId;
+        //   game = resolveAction(game, playerId, action, actOnId);
+        // }
+
+
+        /////////////////////////////
+        if (!challenge && !game.passed) {
+          if (can_challenge) {
+            if (action == "exchange" && actOnId.length){
+              // only instance in which two players are prompted for input at once.  Exchange action in which challenger looses a character and both were active.  One player is choosing which card to loose and the other is choosing wich cards to keep for the exchange action.  If "card to loose" is chosen first, then challenge = false, but we need to resolve action anyway.
+              game.actOnId = actOnId;
               game = resolveAction(game, playerId, action, actOnId);
             }
+            else if (action == "steal" || action == "assassinate") {
+              if (actOnId.length) {
+                game.challenge = true;
+                game.actOnId[0] = actOnId;
+              }
+            } else {
+              game.challenge = true;
+            }
           } else {
-            game.challenge = true;
+            if (action == "coop" && actOnId.length) {
+              game.actOnId = actOnId;
+              game = resolveAction(game, playerId, action, actOnId);
+            }
+            if (action == "income") {
+              game = resolveAction(game, playerId, action, actOnId);
+            }
           }
         } else {
-          game.actOnId = actOnId;
+          console.log("c");
+          // game.actOnId = actOnId;
           game = resolveAction(game, playerId, action, actOnId);
         }
+
 
         console.log("About to set game: ", game);
         redis.set(gameId, JSON.stringify(game));
@@ -394,36 +433,40 @@ router.post('/api/challenge', function(req, res) {
           && game.characters[c_0.id].action != game.actionTaken 
           && game.characters[c_1.id].action != game.actionTaken) {
             console.log("Challenge: SUCCESS Lose Player!, both are active");
-            game.players[game.pTurnId].losePlayer = true;
-            game.losePlayer = true;
+            // game.players[game.pTurnId].losePlayer = true;
+            // game.losePlayer = true;
+            game = loseInfluence(game, game.pTurnId, false);
             game.challenge = false;
         } else if (c_0.active && game.characters[c_0.id].action != game.actionTaken && !c_1.active) {
             console.log("Challenge: SUCCESS Lose Player!, only 0 is active");
-            c_0.active = false;
-            game.players[game.pTurnId].active = false;
-            game.activePlayers -= 1;
-            game = nextTurn(game); // no action id challenge successful
+            // c_0.active = false;
+            // game.players[game.pTurnId].active = false;
+            // game.activePlayers -= 1;
+            // game = nextTurn(game); // no action id challenge successful
+            game = loseInfluence(game, game.pTurnId, true);
         } else if (c_1.active && game.characters[c_1.id].action != game.actionTaken && !c_0.active) {
             console.log("Challenge: SUCCESS Lose Player!, only 1 is active");
-            c_1.active = false;
-            game.players[game.pTurnId].active = false;
-            game.activePlayers -= 1;
-            game = nextTurn(game); // no action id challenge successful
+            // c_1.active = false;
+            // game.players[game.pTurnId].active = false;
+            // game.activePlayers -= 1;
+            // game = nextTurn(game); // no action id challenge successful
+            game = loseInfluence(game, game.pTurnId, true);
         } else { // challenger loses player
             console.log("Challenger loses player")
             c_0 = game.players[playerId].characters[0]; 
             c_1 =  game.players[playerId].characters[1];
 
-            if (!c_1.active || !c_0.active) {
-              game.players[playerId].active = false;
-              game.activePlayers -= 1;
-              c_0.active = false;
-              c_1.active = false;
-              console.log("Player DEAD: ", playerId);
-            } else {
-              game.players[playerId].losePlayer = true;
-              game.losePlayer = true;
-            }
+            // if (!c_1.active || !c_0.active) {
+            //   game.players[playerId].active = false;
+            //   game.activePlayers -= 1;
+            //   c_0.active = false;
+            //   c_1.active = false;
+            //   console.log("Player DEAD: ", playerId);
+            // } else {
+            //   game.players[playerId].losePlayer = true;
+            //   game.losePlayer = true;
+            // }
+            game = loseInfluence(game, playerId, false);
             game.challenge = false;
             // Challenge unsuccful so action is resolved. NextTurn is called at resolveAction.
             game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId);
@@ -594,7 +637,13 @@ router.post('/api/loseCharacter', (req, res) => {
       game.players[playerId].characters[parseInt(characterToLose)].active = false;
       game.players[playerId].losePlayer = false;
       game.players[playerId].influence -= 1;
-      game = nextTurn(game);
+
+      // only instance in which two players are prompted for input at once.  Exchange action in which challenger looses a character and had both were active.  One player is choosing which card to loose and the other is choosing wich cards to keep for the exchange action.
+      if (game.actionTaken != "exchange" && !game.actOnId.length) { 
+        game = nextTurn(game);
+      } else {
+        game.losePlayer = false;
+      }
       
       redis.set(gameId, JSON.stringify(game));
       res.json(game);
@@ -723,31 +772,6 @@ function resolveAction(game, playerId, action, actOnId) {
       console.log("case assassinate")
       game.players[playerId].actionTaken = "assassinate";
       if (actOnId.length && !game.blockedBy) {
-        // if (game.players[actOnId[0]].characters[0].active && game.players[actOnId[0]].characters[1].active
-        //   && !game.players[actOnId[0]].losePlayer) { // If actOnId player lost challenge, and is already losing a card then they lose both cards and are out.
-        //   console.log("This player is losing a player: ", actOnId[0])
-        //   game.players[actOnId[0]].losePlayer = true;
-        //   game.losePlayer = true;
-        //   console.log("updated loose player for them: ", game);
-        // } else {
-        //   console.log("Player DEAD!: ", actOnId[0])
-        //   game.players[actOnId[0]].characters[0].active = false;
-        //   game.players[actOnId[0]].characters[1].active = false;
-        //   game.activePlayers -= 1;
-        //   game.players[actOnId[0]].active = false;
-
-        //   // check for winner
-        //   if (game.activePlayers == 1) {
-        //     game.players.forEach((p) => {
-        //       if (p.active) {
-        //         game.winner = p.id;
-        //       }
-        //     });
-        //   } else {
-        //     game = nextTurn(game);
-        //   }
-        // }
-
         game = loseInfluence(game, actOnId[0], true)
       } 
         
@@ -758,7 +782,7 @@ function resolveAction(game, playerId, action, actOnId) {
 }
 
 function loseInfluence(game, playerId, goToNextTurn) {
-  if (game.players[playerId].characters[0].active && game.players[playerId].characters[0].active
+  if (game.players[playerId].characters[0].active && game.players[playerId].characters[1].active
     && !game.players[playerId].losePlayer) { 
     console.log("player needs to choose which card they lose.")
     game.players[playerId].losePlayer = true;
@@ -771,20 +795,25 @@ function loseInfluence(game, playerId, goToNextTurn) {
     game.activePlayers -= 1;
 
     // check for winner
-    if (game.activePlayers == 1) {
-      game.players.forEach((p) => {
-        if (p.active) {
-          console.log("WINNER!!");
-          game.winner = p.id;
-        }
-      });
-    } 
+    game = checkWinner(game);
     if (goToNextTurn && game.activePlayers > 1) {
       game = nextTurn(game);
     }
     
   }
 
+  return game;
+}
+
+function checkWinner(game) {
+  if (game.activePlayers == 1) {
+    game.players.forEach((p) => {
+      if (p.active) {
+        console.log("WINNER!!");
+        game.winner = p.id;
+      }
+    });
+  } 
   return game;
 }
 
@@ -897,7 +926,7 @@ function draw(game, n) {
     if (totalAvailable >= n) {
       // gather the deck into array.
       let c = new Array;
-      game.characters.forEach( (p, i) =>{
+      game.characters.forEach( (p, i) => {
         let a = p.available
         while(a > 0){
           c.push(i);

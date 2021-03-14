@@ -15,7 +15,6 @@ import { GameProvider } from './GameContext';
 
 function App() {
   return (
-    <div className="app-container">
       <Router>
         <Switch>
           <GameProvider>
@@ -30,7 +29,6 @@ function App() {
           </GameProvider>
         </Switch>
       </Router>
-    </div>
     );
 }
 
@@ -71,25 +69,30 @@ function GameIdForm() {
   }
   
   return (
-    <form onSubmit={handleSubmit}>
-      <span>Game Name:</span>
-      <br></br>
-      <input 
-        type="text" 
-        value={gameId}
-        onChange={(event) => {setGameId(event.target.value)}}
-      />
-      <br></br>
-      <span>Number of Players:</span>
-      <br></br>
-      <input 
-        type="text" 
-        value={numPlayers}
-        onChange={(event) => {setNumPlayers(event.target.value)}}
-      />
-      <br></br>
-      <button className="btn btn-default" type="submit">Submit</button>
-    </form>
+    <div class="home-container">
+      <div class="home-content">
+        <h1>Lets Play COOP!</h1>
+        <form onSubmit={handleSubmit}>
+          <span>Game Name:</span>
+          <br></br>
+          <input 
+            type="text" 
+            value={gameId}
+            onChange={(event) => {setGameId(event.target.value)}}
+          />
+          <br></br>
+          <span>Number of Players:</span>
+          <br></br>
+          <input 
+            type="text" 
+            value={numPlayers}
+            onChange={(event) => {setNumPlayers(event.target.value)}}
+          />
+          <br></br>
+          <button className="btn btn-default" type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
   );
 }
 
