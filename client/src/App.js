@@ -40,7 +40,7 @@ function GameIdForm() {
   // const [game, setGame] = g;
 
   let history = useHistory();
-
+// TODO: Handle response from API if # player is not 2-6
   const createGame = async () => {
     try {
       const requestOptions = {
@@ -71,13 +71,16 @@ function GameIdForm() {
   return (
     <div class="home-container">
       <div class="home-content">
-        <h1>Lets Play COOP!</h1>
+        <h1 className="home-title">COOP</h1>
+        
         <form onSubmit={handleSubmit}>
+        <div className="home-instruction">Coop can be played with 2-6 players across multiple devices.  To start a new game enter the game name, the number of players, and hit 'Go'. To enter an existing game enter the game name and hit 'Go'</div>
           <span>Game Name:</span>
           <br></br>
           <input 
             type="text" 
             value={gameId}
+            className="home-input"
             onChange={(event) => {setGameId(event.target.value)}}
           />
           <br></br>
@@ -86,10 +89,11 @@ function GameIdForm() {
           <input 
             type="text" 
             value={numPlayers}
+            className="home-input"
             onChange={(event) => {setNumPlayers(event.target.value)}}
           />
           <br></br>
-          <button className="btn btn-default" type="submit">Submit</button>
+          <button className="btn btn-default green" type="submit">Go</button>
         </form>
       </div>
     </div>
