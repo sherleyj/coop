@@ -118,31 +118,31 @@ router.get('/api/getGame/:id', function(req, res, next) {
     ],
     "characters": [
       {
-        "name": "Hen", // chickens/ Hen
+        "name": "Hen", // chickens/ Hen - Duke
         "action": "tax",
         "block": "aid",
         "available": 3
       },
       {
-        "name": "Fox", // fox 
+        "name": "Fox", // fox - assassin 
         "action": "assassinate",
         "block": "",
         "available": 3
       },
       {
-        "name": "Chick", // chicks
+        "name": "Chick", // chicks - ambasador
         "action": "exchange",
         "block": "steal",
         "available": 3
       },
       {
-        "name": "Rooster", // rooster
+        "name": "Rooster", // rooster - captain
         "action": "steal",
         "block": "steal",
         "available": 3
       },
       {
-        "name": "Dog", // dog
+        "name": "Dog", // dog - contessa 
         "action": "",
         "block": "assassinate",
         "available": 3
@@ -215,26 +215,69 @@ router.post('/api/updatePlayerName', function(req, res) {
 router.post('/api/createGame', function(req, res) {
   // const gameid = req.params.id;
   const gameId = req.body.gameId;
-  let numPlayers = parseInt(req.body.numPlayers);
+  // let numPlayers = parseInt(req.body.numPlayers);
+  const playerName = req.body.playerName;
   console.log("** In createGame **");
   
   redis.get(gameId).then(function (result) {
-    console.log("this is the result: " + result); 
     if (result) {
+      console.log("game already exists");
       resJSON = JSON.parse(result);
-      res.json(resJSON);
+      if (resJSON.numPlayers < 6) {
+        resJSON.players.push(
+        {
+          "id": resJSON.numPlayers,
+          "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
+          "influence": 2,
+          "playerName": playerName,
+          "coins": 2,
+          "turn": false,
+          "challenge": false,
+          "passed": false,
+          "actionTaken":"",
+          "blockedBy":"",
+          "losePlayer": false,
+          "active": true
+        });
+
+        console.log("Added a player to the game", resJSON);
+        let drawnCards = draw(resJSON, 2);
+        if (drawnCards == undefined) {
+          console.log("Draw returned undefined")
+        }
+
+        resJSON.players[resJSON.numPlayers].characters[0].id = drawnCards[0];
+        resJSON.players[resJSON.numPlayers].characters[1].id = drawnCards[1];
+        resJSON.characters[drawnCards[0]].available -= 1;
+        resJSON.characters[drawnCards[1]].available -= 1;
+        resJSON.numPlayers = resJSON.numPlayers + 1;
+        resJSON.activePlayers = resJSON.activePlayers + 1;
+
+        redis.set(gameId, JSON.stringify(resJSON));
+    
+        redis.get(gameId).then(function (result) {
+          console.log("this is the result: " + result); 
+          resJSON = JSON.parse(result);
+          response = {"gameId" : gameId, "playerId" : resJSON.numPlayers - 1};
+          res.json(response);
+        }).catch(function (error) {
+          console.log(error);
+          res.status(500).json({ error: 'There was an error.' });
+        });
+      } else {
+        res.status(422).json({ error: 'Game must be 2-6 players.' });
+      }
     } else {
-      if (numPlayers > 1 && numPlayers < 7) {
         let game = {
           "gameId": gameId,
-          "numPlayers": numPlayers,
+          "numPlayers": 1,
           "challenge": false,
           "blockedBy": "",
           "actionTaken": "",
           "pTurnId": 0,
           "actOnId": [],
           "passed": 0,
-          "activePlayers": numPlayers,
+          "activePlayers": 1,
           "losePlayer": false,
           "players": [],
           "winner": "",
@@ -273,53 +316,50 @@ router.post('/api/createGame', function(req, res) {
         };
     
         console.log("Game so far:", game);
-        let id = 0;
-        try {
-          while(numPlayers > 0) {
-            console.log("loop");
-            game.players.push(
-              {
-              "id": id,
-              "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
-              "influence": 2,
-              "playerName": "",
-              "coins": 2,
-              "turn": false,
-              "challenge": false,
-              "passed": false,
-              "actionTaken":"",
-              "blockedBy":"",
-              "losePlayer": false,
-              "active": true
-            });
-            numPlayers = numPlayers - 1;
-            id = id + 1;
-            console.log("pushed");
-          }
-        } catch(e) {
-          console.log(e);
-        }
-        game.players[0].turn = true;
+        
+        game.players.push(
+        {
+          "id": 0,
+          "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
+          "influence": 2,
+          "playerName": playerName,
+          "coins": 2,
+          "turn": true,
+          "challenge": false,
+          "passed": false,
+          "actionTaken":"",
+          "blockedBy":"",
+          "losePlayer": false,
+          "active": true
+        });
     
         console.log("added players: ", game);
     
-        game = shuffle(game);
+        // game = shuffle(game);
+
+        let drawnCards = draw(game, 2);
+        if (drawnCards == undefined) {
+          console.log("Draw returned undefined")
+        }
+        game.players[0].characters[0].id = drawnCards[0];
+        game.players[0].characters[1].id = drawnCards[1];
+        game.characters[drawnCards[0]].available -= 1;
+        game.characters[drawnCards[1]].available -= 1;
     
-        console.log("shuffled and dealt cards: ", game);
+        console.log("created game: ", game);
     
         redis.set(gameId, JSON.stringify(game));
     
         redis.get(gameId).then(function (result) {
           console.log("this is the result: " + result); 
           resJSON = JSON.parse(result);
-          res.json(resJSON);
+          response = {"gameId" : gameId, "playerId" : resJSON.numPlayers - 1};
+          res.json(response);
         }).catch(function (error) {
           console.log(error);
           res.status(500).json({ error: 'There was an error.' });
         });
-      } else {
-        res.status(422).json({ error: 'Game must be 2-6 players.' })
-      }  
+ 
     }
   }).catch(function (error) {
     console.log(error);

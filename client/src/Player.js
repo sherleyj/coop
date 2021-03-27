@@ -409,6 +409,10 @@ function Player() {
   const character_0_active = useGetNestedObject(game, ['players', playerid, 'characters', 0, "active"]);
   const character_1_active = useGetNestedObject(game, ['players', playerid, 'characters', 1, "active"]);
   const actionChosen = useGetNestedObject(game, ['players', playerid, 'actionTaken']) ? true: false;
+
+  const last_action = game.actionTaken ? game.actionTaken : "";
+  const turn_player_name = useGetNestedObject(game, ['players', game.pTurnId, 'playerName']);
+  console.log("turn_player_name: ",turn_player_name);
   let active_players = new Array(game.numPlayers);
 
   let character_images = ""
@@ -442,8 +446,6 @@ function Player() {
             let character_1_img = "";
             let dead = !p.active;
             let winner = game.winner === p.id ? true: false;
-            console.log("game.winner: ", game.winner);
-            console.log(game.winner == p.id);
             let playerName = p.playerName ? p.playerName : "Player " + playerid;
             if (!character_0.active || game.winner) {
                 console.log("character 0 dead.", game.characters[character_0.id].name)
@@ -457,7 +459,7 @@ function Player() {
             }
 
             let link = "/" + gameidURL + "/player/" + playerid;
-            if (dead) {
+            if (dead && game.players && game.players[0]) {
               return (
                 <div className={p.turn ? "player-item highlight" : "player-item"}>
                 <div key={p.id} className="player">
@@ -516,18 +518,23 @@ function Player() {
         });
     }
 
-  let card_0 = 
+  let card_0 = ""
+  let card_1 = ""
+
+  if(game.players) {
+  card_0 = 
   <div className={character_0_active? "player-cards": "player-cards dead"}>
     <div><h3 className="character-header">The {character_0_name}</h3></div>
     {/* <div>{ (character_0_active) ? <span>Alive</span> : <span>Dead</span> }</div> */}
     <img src={character_images[character_0]}></img>
   </div>
-  let card_1 =
+  card_1 =
   <div className={character_1_active? "player-cards": "player-cards dead"}>
     <div><h3 className="character-header">The {character_1_name}</h3></div>
     <img src={character_images[character_1]}></img>
     {/* <div>{ (character_1_active) ? <span>Alive</span> : <span>Dead</span> }</div> */}
   </div>
+  }
 
   
   for (let i = 0; i < game.numPlayers; i++ ) {
@@ -606,6 +613,7 @@ function Player() {
   }
 
 
+
   useInterval(async () => {
     if (!turn || (turn && game.challenge)) {
       return await getGameAPI();
@@ -613,55 +621,56 @@ function Player() {
   }, 5000);
 
   // ******* RENDER ******* 
-  if (!playerName) {
-    return (
-      <div className="name-form">
-      <form onSubmit={handlePlayerNameSubmit} >
-        <div className="player-name-form">Player Name:</div>
-        <br></br>
-        <input 
-          type="text" 
-          value={playerNameForm}
-          onChange={(event) => {setPlayerNameForm(event.target.value)}}
-        />
-        <button className="btn btn-default" type="submit">Submit</button>
-      </form>
-      </div>
-    );
-  }
-  else if (!alive) {
+  // if (!playerName) {
+  //   return (
+  //     <div className="name-form">
+  //     <form onSubmit={handlePlayerNameSubmit} >
+  //       <div className="player-name-form">Player Name:</div>
+  //       <br></br>
+  //       <input 
+  //         type="text" 
+  //         value={playerNameForm}
+  //         onChange={(event) => {setPlayerNameForm(event.target.value)}}
+  //       />
+  //       <button className="btn btn-default" type="submit">Submit</button>
+  //     </form>
+  //     </div>
+  //   );
+  // }
+  if (!alive && game.players) {
     return (
       <div className="game-container">
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+          <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+          {playersItems}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <h1>{playerName} Player {playeridURL} </h1>        
-          <h2>You are DEAD :( </h2>
+          <h2 className="game-content-player-name">{playerName}</h2>        
+          <h3>You are DEAD :( </h3>
         </div>
         {card_0}
         {card_1}
-        <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-        </div>
       </div>
     );
   }
   else if (winner) {
     return (
       <div className="game-container">
-
+        <div className="game-summary-container">
+            <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+            <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+            {playersItems}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <h1>{playerName} Player {playeridURL} </h1>        
-          <h2>You have {coins} eggs </h2>
-          <h2>You are the WINNER! </h2>  
+          <h2 className="game-content-player-name">{playerName}</h2>        
+          <h3 className="game-content-eggs">You have {coins} eggs </h3>
+          <h3>You are the WINNER! </h3>  
         </div>
         {card_0}
         {card_1}
-        <div className="game-summary-container">
-            <h3 className="game-summary-title">Game Summary</h3>
-            {playersItems}
-        </div>
       </div>
     );
   }
@@ -670,10 +679,18 @@ function Player() {
     console.log(game.challenge);
     return(
       <div className="game-container">
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">It's your turn.</h3>
+          {/* <h3 className="game-summary-current-action">Pick {game.players[game.pTurnId].influence} cards to keep</h3> */}
+          {playersItems}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-
-          <div>Pick {game.players[game.pTurnId].influence} cards to keep:</div>
+          <h2 className="game-content-player-name">{playerName}</h2>        
+          <h3 className="game-content-eggs">You have {coins} eggs </h3>
+          <br></br>
+          <h3 className="game-content-eggs">Pick {game.players[game.pTurnId].influence} cards to keep:</h3>
+          {/* <div>Pick {game.players[game.pTurnId].influence} cards to keep:</div> */}
           <form onSubmit={handleExchangePicksSubmit} name="exchange">
             {exchange_form}
             <button className="btn-default action-btn" type="submit">Submit</button>
@@ -681,17 +698,17 @@ function Player() {
         </div>
         {card_0}
         {card_1}
-        <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-        </div>
-
       </div>
     );
   // Loosing one of two players. Form to choose which to lose.
   } else if (losePlayer && character_0_active && character_1_active){ 
     return (
     <div className="game-container">
+      <div className="game-summary-container">
+        <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+        <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+        {playersItems}
+      </div>
       <div className="game-content">
         {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
         <div>HEY YOU LOSE A PLAYER!</div>
@@ -715,10 +732,6 @@ function Player() {
       </div>
       {card_0}
       {card_1}
-      <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-      </div>
     </div>
     );
   }
@@ -726,6 +739,11 @@ function Player() {
   else if (stealing && game.players[0].characters[0] && !game.losePlayer && !game.challenge) { 
     return (
       <div className="game-container">
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+          <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+          {playersItems}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <div>Pick a Player to Steal From: </div>
@@ -736,15 +754,16 @@ function Player() {
         </div>
         {card_0}
         {card_1}
-        <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-        </div>
       </div>
     );
   } else if (assassinating && !game.actOnId.length && !game.losePlayer && !game.challenge) {
     return (
       <div className="game-container">
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+          <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+          {playersItems}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <div>Pick a Player to Assassinate: </div>
@@ -755,10 +774,6 @@ function Player() {
         </div>
         {card_0}
         {card_1}
-        <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-        </div>
       </div>
     );
   }
@@ -766,6 +781,11 @@ function Player() {
   else if (cooping && game.players[0].characters[0] && !game.challenge && coins > 7 && !game.losePlayer) { 
     return (
       <div className="game-container">
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+          <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+          {playersItems}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <div>Pick a Player to Coop: </div>
@@ -776,10 +796,6 @@ function Player() {
         </div>
         {card_0}
         {card_1}
-        <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-        </div>
       </div>
     );
   }
@@ -787,15 +803,16 @@ function Player() {
   else if (turn && !game.challenge && !game.actionTaken) { 
     return (
       <div className="game-container">
-        {/* <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">It is your turn.</h3>
+          <h3 className="game-summary-current-action">Choose what action you want to take.</h3>
           {playersItems}
-        </div> */}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
 
-          <h1>{playerName} Player {playeridURL} </h1>
-          <h2>You have {coins} eggs </h2>
+          <h2 className="game-content-player-name">{playerName}, You have {coins} eggs</h2>
+          {/* <h3 className="game-content-eggs">You have {coins} eggs </h3> */}
           
           
           <button className="btn-default action-btn" onClick={action} name="income" disabled={actionChosen}>Collect Income</button>
@@ -809,23 +826,23 @@ function Player() {
       </div>
       {card_0}
       {card_1}
-      <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-        </div>
     </div>
     );
   // Chance to block aide, challenge action, or block.
   } else if (game.challenge && !turn ) { 
     return (
       <div className="game-container">
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+          <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+          {playersItems}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           
-          <h1>{playerName} Player {playeridURL} </h1>        
-          <h2>You have {coins} eggs </h2>
+          <h2 className="game-content-player-name">{playerName}</h2>        
+          <h3 className="game-content-eggs">You have {coins} eggs </h3>
 
-          <span>Challenge/Counteraction/Pass</span> <br></br>
           <button className="btn-default action-btn" onClick={challenge} disabled={(!can_challenge || challenged || passed) }>Challenge</button>
           <button className="btn-default action-btn" onClick={block} disabled={(!can_block || challenged || passed)}>Block</button>
           {/* <button onClick={challenge}>Counteract</button> */}
@@ -833,56 +850,47 @@ function Player() {
         </div>
         {card_0}
         {card_1}
-
-        <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-        </div>
       </div>
     );
   // Chance to challenge counteraction (block).
   } else if (game.challenge && turn && blocked) { 
     return (
       <div className="game-container">
-
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+          <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+          {playersItems}
+        </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
         
-          <h1>{playerName} Player {playeridURL} </h1>        
-          <h2>You have {coins} eggs </h2>
+          <h2 className="game-content-player-name">{playerName}</h2>        
+          <h3 className="game-content-eggs">You have {coins} eggs </h3>
           <span>Challenge or Pass the Block</span> <br></br>
 
           { (!challenged && !passed) ? <button className="btn-default action-btn" onClick={challengeBlock}>Challenge</button> : null }
           { !(passed) ? <button className="btn-default action-btn" onClick={pass}>Pass</button> : null }
-          </div>
-
-          {card_0}
-          {card_1}
-        
-        <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
         </div>
+        {card_0}
+        {card_1}
       </div>
     );
   } else {
     return (
       <div className="game-container">
-
+        <div className="game-summary-container">
+          <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
+          <h3 className="game-summary-current-action">{turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name + " to finish their turn." }</h3>
+          {playersItems}
+        </div>
 
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <h1>{playerName} Player {playeridURL} </h1>        
-          <h2>You have {coins} eggs </h2>
+          <h2 className="game-content-player-name">{playerName}</h2>        
+          <h3 className="game-content-eggs">You have {coins} eggs </h3>
         </div>
-
         {card_0}
         {card_1}
-
-        <div className="game-summary-container">
-          <h3 className="game-summary-title">Game Summary</h3>
-          {playersItems}
-        </div>
       </div>
     );
   }

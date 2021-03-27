@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Nav from './Nav';
 import Coop from './Coop';
 import Player from './Player';
@@ -12,13 +12,26 @@ import {
 import { GameContext } from './GameContext';
 import { GameProvider } from './GameContext';
 
+const nouns = ["cat", "dog", "narwhal", "larry"];
+const verbs = ["lazy", "hungry", "zealous", "secret"];
+const adverbs = ["super", "tensely", "weakly", "sickly"];
+
+function arr_random(arr) {
+  return(arr[Math.floor(Math.random()*arr.length)]);
+}
+
+function generateGameName() {
+  return arr_random(adverbs) + "-" + arr_random(verbs) + "-" + arr_random(nouns);
+}
+
+console.log(generateGameName());
 
 function App() {
   return (
       <Router>
         <Switch>
           <GameProvider>
-            <Nav/>
+            {/* <Nav/> */}
             <Route path='/' exact component={GameIdForm} />
             <Route path='/:gameidURL' exact>
               <Coop />
@@ -33,12 +46,22 @@ function App() {
 }
 
 function GameIdForm() {
-  const [gameId, setGameId] = useState('this-is-my-game');
-  const [numPlayers, setNumPlayers] = useState(3);
-  const [game, setGame] = useContext(GameContext);
-  // const [gameId, setGameId] = gid;
-  // const [game, setGame] = g;
 
+  const [gameId, setGameId] = useState(generateGameName());
+  const [playerName, setPlayerName] = useState("");
+  const [game, setGame] = useContext(GameContext);
+  const [playerId, setPlayerId] = useState(-1); 
+
+  useEffect (() => {
+    if (playerId >= 0) {
+      console.log("playerId updated: ", playerId);
+      window.location.href = `${gameId}/player/${playerId}`;
+      history.push(`${gameId}/player/${playerId}`);
+
+    }
+  }, [playerId]);
+
+console.log(playerId);
   let history = useHistory();
 // TODO: Handle response from API if # player is not 2-6
   const createGame = async () => {
@@ -46,16 +69,21 @@ function GameIdForm() {
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({"gameId": gameId, "numPlayers": numPlayers})
+        body: JSON.stringify({"gameId": gameId, "playerName": playerName})
       };
   
-      console.log("POST! posting game: ", game);
+      console.log("POST! creating game: ", game);
   
       const data = await fetch('/api/createGame', requestOptions);
       const gameFromAPI = await data.json();
-  
       console.log("New game created!: ", gameFromAPI);
-  
+      // const playerId =  gameFromAPI.playerId + 1;
+
+      setPlayerId(gameFromAPI.playerId + 1);
+      // setPlayerId(playerId);
+      console.log("new player created!: ", gameFromAPI.playerId);
+      
+      return playerId;
     } catch (e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -64,9 +92,18 @@ function GameIdForm() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+  
     createGame();
-    history.push(`${gameId}`);
+    // .then( function(playerId) {
+    //   console.log("create game returned: ", playerId);
+    //   // history.push(`${gameId}/player/${playerId}`);
+    //   if (playerId >= 0) {
+    //     window.location.href = `${gameId}/player/${playerId}`;
+    //   }
+    // });
   }
+
+
   
   return (
     <div class="home-container">
@@ -88,9 +125,9 @@ function GameIdForm() {
           <br></br>
           <input 
             type="text" 
-            value={numPlayers}
+            value={playerName}
             className="home-input"
-            onChange={(event) => {setNumPlayers(event.target.value)}}
+            onChange={(event) => {setPlayerName(event.target.value)}}
           />
           <br></br>
           <button className="btn btn-default green" type="submit">Go</button>

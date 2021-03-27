@@ -54,7 +54,7 @@ html, body {
   /* border: 1px solid; */
   max-width: 600px;
   /* text-align: center; */
-  box-shadow: 5px 7px #606756;
+  /* box-shadow: 5px 7px #606756; */
 }
 
 .home-container {
@@ -64,16 +64,20 @@ html, body {
 }
 
 .game-content {
-  padding: 35px;
+  padding: 20px;
   background-color: #f7fbf0;
   border-radius: 10px;
   /* border: 1px solid; */
   width: 380px;
 
   /* text-align: center; */
-  box-shadow: 5px 7px #606756;
+  /* box-shadow: 5px 7px #606756; */
   flex-basis: 100%;
-  margin: 30px 33px;
+  margin: 10px 33px;
+}
+
+.game-content-eggs {
+  margin: 5px 0px;
 }
 
 .game-container {
@@ -151,21 +155,21 @@ input.home-input {
 
 .player-cards {
   margin: 5px 20px;
-  padding: 35px;
+  padding: 15px;
   background-color: #f7fbf0;
   border-radius: 10px;
   /* border: 1px solid; */
   /* width: 100px; */
   /* text-align: center; */
-  box-shadow: 5px 7px #606756;
+  /* box-shadow: 5px 7px #606756; */
   max-width: 200px;
   /* margin-bottom: 50px; */
-  height: 300px;
+  /* height: 300px; */
   align-self: center;
 }
 
 .player-cards img {
-  width: 135px;
+  width: 95px;
   padding: 0 15px;
   margin-left: auto;
   margin-right: auto;
@@ -184,21 +188,23 @@ input.home-input {
   margin-top: 10px;
 } */
 
-.game-content h1 {
-  margin-top: 0;
+.game-content-player-name{
+  font-size: 22px;
+  margin: 5px 0px;
 }
 
 .game-summary-container {
   display: flex;
   flex-wrap: wrap;
-  margin: 33px 33px;
-  padding: 35px;
+  margin: 10px 33px;
+  padding: 20px;
   background-color: #f7fbf0;
   border-radius: 10px;
+  margin-top: 20px;
   /* border: 1px solid; */
   /* width: 100px; */
   /* text-align: center; */
-  box-shadow: 5px 7px #606756;
+  /* box-shadow: 5px 7px #606756; */
   width: 100%;
   align-items: center;
   justify-content: center;
@@ -214,6 +220,12 @@ input.home-input {
   margin: 10px 0px;
   margin-left: 10px;
   font-size: 22px;
+}
+
+.game-summary-current-action {
+  margin: 0;
+  flex-basis: 100%;
+  margin-bottom: 10px;
 }
 
 .player-name {
@@ -252,11 +264,6 @@ input.home-input {
 .board {
   display: flex;
   padding: 35px;
-  /* background-color: #f7fbf0;
-  border-radius: 10px;
-  border: 1px solid;
-  width: 260px;
-  box-shadow: 5px 7px #606756; */
   max-width: 900px;
   flex-wrap: wrap;
   justify-content: center;
@@ -264,18 +271,14 @@ input.home-input {
   background-color: #f7fbf0;
   border-radius: 10px;
   /* border: 1px solid; */
-  box-shadow: 5px 7px #606756;
+  /* box-shadow: 5px 7px #606756; */
   text-align: center;
 }
 
 .b-player-item {
   margin: 10px 10px;
   padding: 5px;
-  /* background-color: #f7fbf0; */
-  /* border-radius: 10px; */
-  /* border: 1px solid; */
   width: 190px;
-  /* box-shadow: 5px 7px #606756; */
 }
 
 .b-player-name {
