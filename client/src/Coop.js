@@ -86,7 +86,7 @@ function Coop() {
             let character_0_img = "";
             let character_1_img = "";
             let dead = !p.active;
-            let winner = game.winner == p.id ? true: false;
+            let winner = game.winner === p.id ? true: false;
             let playerName = p.playerName ? p.playerName : "Player " + playerid;
             let message = "";
             if (dead) {

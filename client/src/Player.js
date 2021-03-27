@@ -381,7 +381,7 @@ function Player() {
   
   let coins = useGetNestedObject(game, ['players', playerid, 'coins']);
   const alive = useGetNestedObject(game, ['players', playerid, 'active']);
-  const winner = game.winner == playerid ? true: false;
+  const winner = game.winner === playerid ? true: false;
   const turn = useGetNestedObject(game, ['players', playerid, 'turn']) ? "Your turn!" : "";
   // const waitingOnMe = useGetNestedObject(game, ['waitingOnId']) == playerid ? true : false;
   const losePlayer = useGetNestedObject(game, ['players', playerid, 'losePlayer']);
@@ -441,7 +441,9 @@ function Player() {
             let character_0_img = "";
             let character_1_img = "";
             let dead = !p.active;
-            let winner = game.winner == p.id ? true: false;
+            let winner = game.winner === p.id ? true: false;
+            console.log("game.winner: ", game.winner);
+            console.log(game.winner == p.id);
             let playerName = p.playerName ? p.playerName : "Player " + playerid;
             if (!character_0.active || game.winner) {
                 console.log("character 0 dead.", game.characters[character_0.id].name)
@@ -638,7 +640,7 @@ function Player() {
         {card_0}
         {card_1}
         <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
       </div>
@@ -650,17 +652,15 @@ function Player() {
 
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          
           <h1>{playerName} Player {playeridURL} </h1>        
           <h2>You have {coins} eggs </h2>
-          <h2>You are the WINNER! </h2>
-
-          {card_0}
-          {card_1}
-          <div className="game-summary-container">
-            <h3 class = "game-summary-title">Game Summary</h3>
+          <h2>You are the WINNER! </h2>  
+        </div>
+        {card_0}
+        {card_1}
+        <div className="game-summary-container">
+            <h3 className="game-summary-title">Game Summary</h3>
             {playersItems}
-          </div>
         </div>
       </div>
     );
@@ -682,7 +682,7 @@ function Player() {
         {card_0}
         {card_1}
         <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
 
@@ -716,7 +716,7 @@ function Player() {
       {card_0}
       {card_1}
       <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
       </div>
     </div>
@@ -737,7 +737,7 @@ function Player() {
         {card_0}
         {card_1}
         <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
       </div>
@@ -756,7 +756,7 @@ function Player() {
         {card_0}
         {card_1}
         <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
       </div>
@@ -777,7 +777,7 @@ function Player() {
         {card_0}
         {card_1}
         <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
       </div>
@@ -788,7 +788,7 @@ function Player() {
     return (
       <div className="game-container">
         {/* <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div> */}
         <div className="game-content">
@@ -810,7 +810,7 @@ function Player() {
       {card_0}
       {card_1}
       <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
     </div>
@@ -835,7 +835,7 @@ function Player() {
         {card_1}
 
         <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
       </div>
@@ -860,7 +860,7 @@ function Player() {
           {card_1}
         
         <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
       </div>
@@ -880,7 +880,7 @@ function Player() {
         {card_1}
 
         <div className="game-summary-container">
-          <h3 class = "game-summary-title">Game Summary</h3>
+          <h3 className="game-summary-title">Game Summary</h3>
           {playersItems}
         </div>
       </div>

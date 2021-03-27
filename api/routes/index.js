@@ -237,6 +237,7 @@ router.post('/api/createGame', function(req, res) {
           "activePlayers": numPlayers,
           "losePlayer": false,
           "players": [],
+          "winner": "",
           "characters": [
             {
               "name": "Hen", // chickens
