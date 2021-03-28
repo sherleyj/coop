@@ -121,7 +121,7 @@ console.log(playerId);
             onChange={(event) => {setGameId(event.target.value)}}
           />
           <br></br>
-          <span>Number of Players:</span>
+          <span>Your Name:</span>
           <br></br>
           <input 
             type="text" 
