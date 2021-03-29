@@ -51,6 +51,7 @@ function GameIdForm() {
   const [playerName, setPlayerName] = useState("");
   const [game, setGame] = useContext(GameContext);
   const [playerId, setPlayerId] = useState(-1); 
+  const [error, setError] = useState("");
 
   useEffect (() => {
     if (playerId >= 0) {
@@ -80,6 +81,10 @@ console.log(playerId);
       // const playerId =  gameFromAPI.playerId + 1;
 
       setPlayerId(gameFromAPI.playerId + 1);
+      if (gameFromAPI.error) {
+        setError(gameFromAPI.error);
+      }
+
       // setPlayerId(playerId);
       console.log("new player created!: ", gameFromAPI.playerId);
       
@@ -111,7 +116,8 @@ console.log(playerId);
         <h1 className="home-title">COOP</h1>
         
         <form onSubmit={handleSubmit}>
-        <div className="home-instruction">Coop can be played with 2-6 players across multiple devices.  To start a new game enter the game name, the number of players, and hit 'Go'. To enter an existing game enter the game name and hit 'Go'</div>
+        <div className="home-instruction">Coop can be played with 2-6 players across multiple devices.  To start a new game or go to an existing game, enter the game name, your name, and hit 'Go'.  Wait for you friends to enter the game before starting.</div>
+        <div className="error">{error}</div>
           <span>Game Name:</span>
           <br></br>
           <input 

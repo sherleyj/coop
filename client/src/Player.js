@@ -29,6 +29,7 @@ function Player() {
 
   const [numSelected, setNumSelected] = useState(0);
   const [playerNameForm, setPlayerNameForm] = useState("");
+  const [error, setError] = useState("");
 
   useEffect (() => {
     getGameAPI();
@@ -99,7 +100,7 @@ function Player() {
 
   function action(e) {
     const action = e.target.name;
-    game.actionTaken = action;
+    // game.actionTaken = action;
 
     takeAction(action);
   }
@@ -126,12 +127,19 @@ function Player() {
 
         const data = await fetch('/api/takeTurn', requestOptions);
         const gameFromAPI = await data.json();
-        setGame({
-          ...gameFromAPI,
-          players : [...gameFromAPI.players],
-          characters : [...gameFromAPI.characters]
-        });
-
+        if (data.status == 418) {
+          setError(gameFromAPI.error);
+          game.actionTaken = "";
+          console.log("gameFromAPI", gameFromAPI);
+          console.log("error", gameFromAPI.error);
+        }
+        else {
+          setGame({
+            ...gameFromAPI,
+            players : [...gameFromAPI.players],
+            characters : [...gameFromAPI.characters]
+          });
+        }
       } catch(e) {
           console.log(e);
           return <div>Error: {e.message}</div>;
@@ -620,6 +628,11 @@ function Player() {
     }
   }, 5000);
 
+
+  console.log(!game.actionTaken);
+  console.log(!game.challenge);
+  console.log(turn)
+
   // ******* RENDER ******* 
   // if (!playerName) {
   //   return (
@@ -650,8 +663,10 @@ function Player() {
           <h2 className="game-content-player-name">{playerName}</h2>        
           <h3>You are DEAD :( </h3>
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   }
@@ -669,8 +684,10 @@ function Player() {
           <h3 className="game-content-eggs">You have {coins} eggs </h3>
           <h3>You are the WINNER! </h3>  
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   }
@@ -696,8 +713,10 @@ function Player() {
             <button className="btn-default action-btn" type="submit">Submit</button>
           </form>
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   // Loosing one of two players. Form to choose which to lose.
@@ -752,8 +771,10 @@ function Player() {
           <button className="btn-default action-btn" type="submit" >Submit</button>
           </form>
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   } else if (assassinating && !game.actOnId.length && !game.losePlayer && !game.challenge) {
@@ -772,8 +793,10 @@ function Player() {
           <button className="btn-default action-btn" type="submit" >Submit</button>
           </form>
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   }
@@ -794,8 +817,10 @@ function Player() {
           <button className="btn-default action-btn" type="submit" >Submit</button>
           </form>
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   }
@@ -804,6 +829,7 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="error">{error}</div>
           <h3 className="game-summary-title">It is your turn.</h3>
           <h3 className="game-summary-current-action">Choose what action you want to take.</h3>
           {playersItems}
@@ -824,8 +850,10 @@ function Player() {
           <button className="btn-default action-btn" onClick={action} name="assassinate" disabled={actionChosen || (coins < 3)}>Assassinate</button>
           <button className="btn-default action-btn" onClick={action} name="coop" disabled={!can_coop || actionChosen}>Coop!</button>
       </div>
-      {card_0}
-      {card_1}
+      <div className="cards-container">
+        {card_0}
+        {card_1}
+      </div>
     </div>
     );
   // Chance to block aide, challenge action, or block.
@@ -848,8 +876,10 @@ function Player() {
           {/* <button onClick={challenge}>Counteract</button> */}
           <button className="btn-default action-btn" onClick={pass} disabled={(passed || challenged)}>Pass</button>
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   // Chance to challenge counteraction (block).
@@ -871,14 +901,17 @@ function Player() {
           { (!challenged && !passed) ? <button className="btn-default action-btn" onClick={challengeBlock}>Challenge</button> : null }
           { !(passed) ? <button className="btn-default action-btn" onClick={pass}>Pass</button> : null }
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   } else {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+        <div className="error">{error}</div>
           <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
           <h3 className="game-summary-current-action">{turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name + " to finish their turn." }</h3>
           {playersItems}
@@ -889,8 +922,10 @@ function Player() {
           <h2 className="game-content-player-name">{playerName}</h2>        
           <h3 className="game-content-eggs">You have {coins} eggs </h3>
         </div>
-        {card_0}
-        {card_1}
+        <div className="cards-container">
+          {card_0}
+          {card_1}
+        </div>
       </div>
     );
   }

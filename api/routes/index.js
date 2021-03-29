@@ -21,6 +21,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
   let game = {
     "gameId": gameid,
     "numPlayers": 6,
+    "addPlayers": false,
     "challenge": false,
     "blockedBy": "",
     "actionTaken": "",
@@ -223,6 +224,10 @@ router.post('/api/createGame', function(req, res) {
     if (result) {
       console.log("game already exists");
       resJSON = JSON.parse(result);
+      if (!resJSON.addPlayers) {
+        res.status(418).json({ error: 'You cannot enter, the game has already started.' });
+        return;
+      }
       if (resJSON.numPlayers < 6) {
         resJSON.players.push(
         {
@@ -265,12 +270,14 @@ router.post('/api/createGame', function(req, res) {
           res.status(500).json({ error: 'There was an error.' });
         });
       } else {
-        res.status(422).json({ error: 'Game must be 2-6 players.' });
+        res.status(418).json({ error: 'Game must be 2-6 players.  Max players reached.' });
+        return;
       }
     } else {
         let game = {
           "gameId": gameId,
           "numPlayers": 1,
+          "addPlayers": true,
           "challenge": false,
           "blockedBy": "",
           "actionTaken": "",
@@ -363,6 +370,7 @@ router.post('/api/createGame', function(req, res) {
     }
   }).catch(function (error) {
     console.log(error);
+    res.status(500).json({ error: 'There was an error.' });
   });
 
 
@@ -383,8 +391,18 @@ router.post('/api/takeTurn', function(req, res) {
     redis.get(gameId).then(function (result) {
       resJSON = JSON.parse(result);
       game = resJSON;
+
+      if (game.numPlayers < 2) {
+        res.status(418).json({ error: 'Game must be at least 2 players.' });
+        return;
+      }
       const challenge = game.challenge;
       // console.log("takeTurn. GOT GAME FROM REDDIS: ", game)
+
+      // no more players can be added to game.
+      if(game.addPlayers) {
+        game.addPlayers = false;
+      }
 
       // allow for challenge before taking action
       if (game.pTurnId == playerId) {
