@@ -523,15 +523,15 @@ function Player() {
     character_images = game.characters.map((c) => {
       switch(c.name) {
         case "Hen":
-          return require('./hen2.png');
+          return require('./hen2.jpg');
         case "Fox" :
-          return require('./fox.png');
+          return require('./fox.jpg');
         case "Chick" :
-          return require('./chic2.png');
+          return require('./chic2.jpg');
         case "Rooster" :
-          return require('./rooster2.png');
+          return require('./rooster2.jpg');
         case "Dog" :
-          return require('./dog1.png');
+          return require('./dog1.jpg');
       }
     });
     //require('./logo.jpeg')
