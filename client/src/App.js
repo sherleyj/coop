@@ -116,7 +116,7 @@ console.log(playerId);
         <h1 className="home-title">COOP</h1>
         
         <form onSubmit={handleSubmit}>
-        <div className="home-instruction">Coop can be played with 2-6 players across multiple devices.  To start a new game or go to an existing game, enter the game name, your name, and hit 'Go'.  Wait for you friends to enter the game before starting.</div>
+        <div className="home-instruction">Coop can be played with 2-6 players across multiple devices.  To start a new game or go to an existing game, enter the game name, your name, and hit 'Go'.  Wait for you friends to enter the game before starting.  When the first action is taken no more players will be allowed to join.</div>
         <div className="error">{error}</div>
           <span>Game Name:</span>
           <br></br>

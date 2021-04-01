@@ -172,17 +172,95 @@ router.get('/api/getGame/:id', function(req, res, next) {
 
 });
 
-router.post('/api/setGame', function(req, res) {
+router.post('/api/resetGame', function(req, res) {
   // const gameid = req.params.id;
 
   const gameId = req.body.gameId;
   console.log("****** POST! GameId: ", gameId);
 
-  redis.set(gameId, JSON.stringify(req.body));
 
   redis.get(gameId).then(function (result) {
     console.log("this is the result: " + result); 
-    resJSON = JSON.parse(result);
+    game = JSON.parse(result);
+
+    newGame = {
+      "gameId": gameId,
+      "numPlayers": game.numPlayers,
+      "addPlayers": true,
+      "challenge": false,
+      "blockedBy": "",
+      "actionTaken": "",
+      "pTurnId": Math.floor(Math.random() * game.numPlayers),
+      "actOnId": [],
+      "passed": 0,
+      "activePlayers": game.numPlayers,
+      "losePlayer": false,
+      "players": [],
+      "winner": "",
+      "characters": [
+        {
+          "name": "Hen", // chickens
+          "action": "tax",
+          "block": "aid",
+          "available": 3
+        },
+        {
+          "name": "Fox", // fox 
+          "action": "assassinate",
+          "block": "",
+          "available": 3
+        },
+        {
+          "name": "Chick", // chicks
+          "action": "exchange",
+          "block": "steal",
+          "available": 3
+        },
+        {
+          "name": "Rooster", // rooster
+          "action": "steal",
+          "block": "steal",
+          "available": 3
+        },
+        {
+          "name": "Dog", // dog
+          "action": "",
+          "block": "assassinate",
+          "available": 3
+        }
+      ]
+    };
+
+    let n = 0;
+    while (n < game.numPlayers) {
+      newGame.players.push({
+        "id": n,
+        "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
+        "influence": 2,
+        "playerName": game.players[n].playerName,
+        "coins": 2,
+        "turn": newGame.pTurnId == n? true : false,
+        "challenge": false,
+        "passed": false,
+        "actionTaken":"",
+        "blockedBy":"",
+        "losePlayer": false,
+        "active": true
+      });
+      let drawnCards = draw(newGame, 2);
+      if (drawnCards == undefined) {
+        console.log("Draw returned undefined")
+      }
+
+      newGame.players[n].characters[0].id = drawnCards[0];
+      newGame.players[n].characters[1].id = drawnCards[1];
+      newGame.characters[drawnCards[0]].available -= 1;
+      newGame.characters[drawnCards[1]].available -= 1;
+      n = n + 1;
+    }
+    console.log("reset the game:");
+    console.log(newGame);
+    redis.set(gameId, JSON.stringify(newGame));
     res.json(resJSON);
   }).catch(function (error) {
     console.log(error);
@@ -503,9 +581,9 @@ router.post('/api/challenge', function(req, res) {
       console.log("got game: ", game);
       let c_0 = game.players[game.pTurnId].characters[0]; 
       let c_1 =  game.players[game.pTurnId].characters[1];
-      game.players[playerId].challenge = true;
       
-      if (challenge_actions.includes(game.actionTaken)) {
+      if (challenge_actions.includes(game.actionTaken) && game.challenge) {
+        game.players[playerId].challenge = true;
         if (c_0.active && c_1.active
           && game.characters[c_0.id].action != game.actionTaken 
           && game.characters[c_1.id].action != game.actionTaken) {
@@ -548,8 +626,8 @@ router.post('/api/challenge', function(req, res) {
             // Challenge unsuccful so action is resolved. NextTurn is called at resolveAction.
             game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId);
         }
-      }
       redis.set(gameId, JSON.stringify(game));
+      
       redis.get(gameId).then(function (result) {
         console.log("Challenge Complete, game: " + result); 
         resJSON = JSON.parse(result);
@@ -558,6 +636,9 @@ router.post('/api/challenge', function(req, res) {
         console.log(error);
         res.status(500).json({ error: 'There was an error.' });
       });
+    } else {
+      res.status(418).json({ error: 'Someone else already challenged.' });
+    }
     }).catch(function (error) {
       console.log("ERROR");
       console.log(error);
@@ -654,7 +735,7 @@ router.post('/api/block', (req, res) => {
   redis.get(gameId).then(function (result) { 
     game = JSON.parse(result);
 
-    if (game.challenge && game.actionTaken && ['aid','steal','assassinate'].includes(game.actionTaken)) {
+    if (game.challenge && game.actionTaken && ['aid','steal','assassinate'].includes(game.actionTaken) && !game.blockedBy) {
       game.players[playerId].actionTaken = 'block';
       // game.players[game.pTurnId].blockedBy = playerId;
       game.blockedBy = playerId;
@@ -663,6 +744,9 @@ router.post('/api/block', (req, res) => {
 
       redis.set(gameId, JSON.stringify(game));
       res.json(game);
+    } else {
+      console.log("*** Someone already blocked ***");
+      res.status(418).json({ error: 'Someone else already blocked.' });
     }
   }).catch(function (error) {
     console.log(error);
@@ -715,11 +799,19 @@ router.post('/api/loseCharacter', (req, res) => {
       game.players[playerId].losePlayer = false;
       game.players[playerId].influence -= 1;
 
-      // only instance in which two players are prompted for input at once.  Exchange action in which challenger looses a character and had both were active.  One player is choosing which card to loose and the other is choosing wich cards to keep for the exchange action.
-      if (game.actionTaken != "exchange" && !game.actOnId.length) { 
-        game = nextTurn(game);
-      } else {
+      // only instance in which two players are prompted for input at once.  Exchange action in which challenger looses a character and both were active.  One player is choosing which card to loose and the other is choosing wich cards to keep for the exchange action.
+      // game.exchange and actOnId is chosen
+      // if (game.actionTaken != "exchange" && !game.actOnId.length && ) { 
+      // // if (game.actionTaken != "exchange" && !game.actOnId.length || playerId == game.pTurnId) { 
+      //   game = nextTurn(game);
+      // } else {
+      //   game.losePlayer = false;
+      // }
+
+      if (game.actionTaken == "exchange" && game.players[game.pTurnId].characters.length > 2) {
         game.losePlayer = false;
+      } else {
+        game = nextTurn(game);
       }
       
       redis.set(gameId, JSON.stringify(game));

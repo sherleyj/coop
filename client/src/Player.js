@@ -10,7 +10,7 @@ import {
   Link,
 } from "react-router-dom";
 import { GameContext } from './GameContext';
-import { useInterval, useGetNestedObject } from './Hooks'
+import { useInterval, useGetNestedObject, useGetNestedObjectLength } from './Hooks'
 
 function Player() {
 
@@ -23,7 +23,7 @@ function Player() {
   const block_actions = ['aid','steal','assassinate'];
   const [chooseCharId, setChooseCharId] = useState(0); 
   const [actOnId, setActOnId] = useState([]); 
-  const [actOnChecked, setActOnChecked] = useState(0);
+  const [actOnChecked, setActOnChecked] = useState(-1);
 
   const [exchangePicks, setExchangePicks] = useState([false,false,false,false]); 
 
@@ -34,12 +34,6 @@ function Player() {
   useEffect (() => {
     getGameAPI();
   }, []);
-
-  // useEffect (() => {
-  //   if (Object.entries(game).length !== 0){
-  //     setGameAPI();
-  //   }
-  // }, [game]);
 
   console.log(game);
 
@@ -62,17 +56,32 @@ function Player() {
     }
   };  
 
-  const setGameAPI = async () => {
+  const resetGame = async () => {
     try {
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(game)
+        body: JSON.stringify({"gameId": gameidURL})
       };
 
 
-      const data = await fetch('/api/setGame', requestOptions);
+      const data = await fetch('/api/resetGame', requestOptions);
       const gameFromAPI = await data.json();
+
+      if (data.status == 418) {
+        setError(gameFromAPI.error);
+        game.actionTaken = "";
+        console.log("gameFromAPI", gameFromAPI);
+        console.log("error", gameFromAPI.error);
+      }
+      else {
+        setError("");
+        setGame({
+          ...gameFromAPI,
+          players : [...gameFromAPI.players],
+          characters : [...gameFromAPI.characters]
+        });
+      }
 
 
     } catch (e) {
@@ -81,14 +90,9 @@ function Player() {
     }
   };  
 
-  function updateGameAPI() {
-    setGame({
-      ...game,
-      players : [...game.players],
-      characters : [...game.characters]
-    })
-    setGameAPI();
-  }
+  // function handleResetGame() {
+  //   resetGame();
+  // }
 
   function updateGame() {
     setGame({
@@ -134,6 +138,7 @@ function Player() {
           console.log("error", gameFromAPI.error);
         }
         else {
+          setError("");
           setGame({
             ...gameFromAPI,
             players : [...gameFromAPI.players],
@@ -161,11 +166,20 @@ function Player() {
         const data = await fetch('/api/challenge', requestOptions);
         const gameFromAPI = await data.json();
 
-        setGame({
-          ...gameFromAPI,
-          players : [...gameFromAPI.players],
-          characters : [...gameFromAPI.characters]
-        });
+        if (data.status == 418) {
+          setError(gameFromAPI.error);
+          game.actionTaken = "";
+          console.log("gameFromAPI", gameFromAPI);
+          console.log("error", gameFromAPI.error);
+        }
+        else {
+          setError("");
+          setGame({
+            ...gameFromAPI,
+            players : [...gameFromAPI.players],
+            characters : [...gameFromAPI.characters]
+          });
+        }
       } catch(e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -186,11 +200,20 @@ function Player() {
         const data = await fetch('/api/challengeBlock', requestOptions);
         const gameFromAPI = await data.json();
 
-        setGame({
-          ...gameFromAPI,
-          players : [...gameFromAPI.players],
-          characters : [...gameFromAPI.characters]
-        });
+        if (data.status == 418) {
+          setError(gameFromAPI.error);
+          game.actionTaken = "";
+          console.log("gameFromAPI", gameFromAPI);
+          console.log("error", gameFromAPI.error);
+        }
+        else {
+          setError("");
+          setGame({
+            ...gameFromAPI,
+            players : [...gameFromAPI.players],
+            characters : [...gameFromAPI.characters]
+          });
+        }
       } catch(e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -210,11 +233,20 @@ function Player() {
         const data = await fetch('/api/block', requestOptions);
         const gameFromAPI = await data.json();
 
-        setGame({
-          ...gameFromAPI,
-          players : [...gameFromAPI.players],
-          characters : [...gameFromAPI.characters]
-        });
+        if (data.status == 418) {
+          setError(gameFromAPI.error);
+          game.actionTaken = "";
+          console.log("gameFromAPI", gameFromAPI);
+          console.log("error", gameFromAPI.error);
+        }
+        else {
+          setError("");
+          setGame({
+            ...gameFromAPI,
+            players : [...gameFromAPI.players],
+            characters : [...gameFromAPI.characters]
+          });
+        }
       } catch(e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -236,11 +268,20 @@ function Player() {
         const data = await fetch('/api/pass', requestOptions);
         const gameFromAPI = await data.json();
 
-        setGame({
-          ...gameFromAPI,
-          players : [...gameFromAPI.players],
-          characters : [...gameFromAPI.characters]
-        });
+        if (data.status == 418) {
+          setError(gameFromAPI.error);
+          game.actionTaken = "";
+          console.log("gameFromAPI", gameFromAPI);
+          console.log("error", gameFromAPI.error);
+        }
+        else {
+          setError("");
+          setGame({
+            ...gameFromAPI,
+            players : [...gameFromAPI.players],
+            characters : [...gameFromAPI.characters]
+          });
+        }
       } catch(e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -261,11 +302,20 @@ function Player() {
 
         const data = await fetch('/api/loseCharacter', requestOptions);
         const gameFromAPI = await data.json();
-        setGame({
-          ...gameFromAPI,
-          players : [...gameFromAPI.players],
-          characters : [...gameFromAPI.characters]
-        });
+        if (data.status == 418) {
+          setError(gameFromAPI.error);
+          game.actionTaken = "";
+          console.log("gameFromAPI", gameFromAPI);
+          console.log("error", gameFromAPI.error);
+        }
+        else {
+          setError("");
+          setGame({
+            ...gameFromAPI,
+            players : [...gameFromAPI.players],
+            characters : [...gameFromAPI.characters]
+          });
+        }
       } catch(e) {
         console.log(e);
         return <div>Error: {e.message}</div>;
@@ -286,11 +336,20 @@ function Player() {
       const data = await fetch('/api/updatePlayerName', requestOptions);
       const gameFromAPI = await data.json();
 
-      setGame({
-        ...gameFromAPI,
-        players : [...gameFromAPI.players],
-        characters : [...gameFromAPI.characters]
-      });
+      if (data.status == 418) {
+        setError(gameFromAPI.error);
+        game.actionTaken = "";
+        console.log("gameFromAPI", gameFromAPI);
+        console.log("error", gameFromAPI.error);
+      }
+      else {
+        setError("");
+        setGame({
+          ...gameFromAPI,
+          players : [...gameFromAPI.players],
+          characters : [...gameFromAPI.characters]
+        });
+      }
     } catch(e) {
       console.log(e);
       return <div>Error: {e.message}</div>;
@@ -336,9 +395,10 @@ function Player() {
     e.preventDefault();
     actOnId[0] = actOnChecked;
     setActOnId(actOnId);
-    
-    takeAction(e.target.name);
-    setActOnId([]);
+    if (actOnChecked >= 0) {
+      takeAction(e.target.name);
+      setActOnId([]);
+    }
   }
 
 
@@ -386,6 +446,30 @@ function Player() {
     e.preventDefault();
     setPlayerNameForm(e.target.value);
   }
+
+  function getLosePlayerName() {
+    let name = ""
+    if (game.players && game.players[0]){
+      game.players.forEach( (p) => {
+        if (p.losePlayer) {
+          name = p.playerName;
+        }
+      });
+    }
+    return name;
+  }
+
+  function getChallengerPlayerName() {
+    let name = ""
+    if (game.players && game.players[0]){
+      game.players.forEach( (p) => {
+        if (p.challenge) {
+          name = p.playerName;
+        }
+      });
+    }
+    return name;
+  }
   
   let coins = useGetNestedObject(game, ['players', playerid, 'coins']);
   const alive = useGetNestedObject(game, ['players', playerid, 'active']);
@@ -396,6 +480,7 @@ function Player() {
   const stealing = turn && game.actionTaken == 'steal' ? true : false;
   const cooping = turn && game.actionTaken == 'coop' ? true : false
   const exchanging = turn && game.actionTaken == 'exchange' ? true : false;
+  const exchange_done = useGetNestedObjectLength(game, ['players', playerid, 'characters'])  == 2 ? true : false;
   const assassinating = turn && game.actionTaken == 'assassinate' ? true : false;
 
   const passed = useGetNestedObject(game, ['players', playerid, 'passed']);
@@ -403,6 +488,16 @@ function Player() {
   const can_coop = coins > 6? true: false;
   // console.log("can_coop? ", can_coop);
   const blocked = game.blockedBy !== "" && turn ? true : false;
+
+  const blocker_name = useGetNestedObject(game, ['players', game.blockedBy, 'playerName']);
+  const blocker = game.blockedBy === playerid? true : false;
+  const challenger_name = getChallengerPlayerName();
+  console.log("blocker: ", blocker);
+  console.log("blockedBy: ", game.blockedBy);
+  console.log("playerid: ", playerid);
+
+  const loser = getLosePlayerName();
+  console.log("loser ", loser);
 
   const playerName = useGetNestedObject(game, ['players', playerid, 'playerName']);
   const character_0 =  useGetNestedObject(game, ['players', playerid, 'characters', 0, "id"]); 
@@ -621,7 +716,7 @@ function Player() {
   }
 
 
-
+// polling
   useInterval(async () => {
     if (!turn || (turn && game.challenge)) {
       return await getGameAPI();
@@ -634,26 +729,27 @@ function Player() {
   console.log(turn)
 
   // ******* RENDER ******* 
-  // if (!playerName) {
-  //   return (
-  //     <div className="name-form">
-  //     <form onSubmit={handlePlayerNameSubmit} >
-  //       <div className="player-name-form">Player Name:</div>
-  //       <br></br>
-  //       <input 
-  //         type="text" 
-  //         value={playerNameForm}
-  //         onChange={(event) => {setPlayerNameForm(event.target.value)}}
-  //       />
-  //       <button className="btn btn-default" type="submit">Submit</button>
-  //     </form>
-  //     </div>
-  //   );
-  // }
+  if (!playerName && game.players) {
+    return (
+      <div className="name-form">
+      <form onSubmit={handlePlayerNameSubmit} >
+        <div className="player-name-form">Player Name:</div>
+        <br></br>
+        <input 
+          type="text" 
+          value={playerNameForm}
+          onChange={(event) => {setPlayerNameForm(event.target.value)}}
+        />
+        <button className="btn btn-default" type="submit">Submit</button>
+      </form>
+      </div>
+    );
+  }
   if (!alive && game.players) {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
           {playersItems}
@@ -674,6 +770,7 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
             <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
             <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
             {playersItems}
@@ -691,12 +788,13 @@ function Player() {
       </div>
     );
   }
-  else if (exchanging && !actOnId.length && !game.challenge && !losePlayer) {
+  else if (exchanging && !actOnId.length && !game.challenge && !losePlayer && !exchange_done) {
     // form with exchangeOptions
     console.log(game.challenge);
     return(
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It's your turn.</h3>
           {/* <h3 className="game-summary-current-action">Pick {game.players[game.pTurnId].influence} cards to keep</h3> */}
           {playersItems}
@@ -724,13 +822,17 @@ function Player() {
     return (
     <div className="game-container">
       <div className="game-summary-container">
-        <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
-        <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+        <div className="title">COOP</div> 
+        <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
+        <h3 className="game-summary-current-action">{turn? "You chose to " + game.actionTaken : "They chose to: " + game.actionTaken}</h3>
+        <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "you were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
+        <h3 className="game-summary-current-action">{challenger_name? challenged? "You challenged" : challenger_name + " challenged" : "" }</h3>
+        <h3 className="game-summary-current-action">{"You lost challenge :( pick which character card to lose."}</h3>
         {playersItems}
       </div>
       <div className="game-content">
         {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-        <div>HEY YOU LOSE A PLAYER!</div>
+        {/* <div>HEY YOU LOSE A PLAYER!</div> */}
         <form onSubmit={handleLoseCharSubmit}>
           <input
             type="radio"
@@ -759,13 +861,15 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
           {playersItems}
         </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <div>Pick a Player to Steal From: </div>
+          {/* <div>Pick a Player to Steal From: </div> */}
+          <h3 className="game-summary-current-action">Pick a Player to Steal From:</h3>
           <form onSubmit={handleActOnSubmit} name="steal">
             {steal_players_form}
           <button className="btn-default action-btn" type="submit" >Submit</button>
@@ -781,13 +885,14 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
           {playersItems}
         </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <div>Pick a Player to Assassinate: </div>
+          <h3 className="game-summary-current-action">Pick a Player to Assassinate:</h3>
           <form onSubmit={handleActOnSubmit} name="assassinate">
             {coop_assassinate_form}
           <button className="btn-default action-btn" type="submit" >Submit</button>
@@ -805,13 +910,14 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
           {playersItems}
         </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <div>Pick a Player to Coop: </div>
+          <h3 className="game-summary-current-action">Pick a Player to Coop:</h3>
           <form onSubmit={handleActOnSubmit} name="coop">
             {coop_assassinate_form}
           <button className="btn-default action-btn" type="submit" >Submit</button>
@@ -829,15 +935,17 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
           <div className="error">{error}</div>
           <h3 className="game-summary-title">It is your turn.</h3>
-          <h3 className="game-summary-current-action">Choose what action you want to take.</h3>
           {playersItems}
         </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
 
           <h2 className="game-content-player-name">{playerName}, You have {coins} eggs</h2>
+          <h3 className="game-summary-current-action green-txt">Choose what action you want to take</h3>
+
           {/* <h3 className="game-content-eggs">You have {coins} eggs </h3> */}
           
           
@@ -854,6 +962,7 @@ function Player() {
         {card_0}
         {card_1}
       </div>
+      <button className="btn-start-over" onClick={resetGame}>Start Over</button>
     </div>
     );
   // Chance to block aide, challenge action, or block.
@@ -861,6 +970,9 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
+          <div className="error">{error}</div>
+
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
           {playersItems}
@@ -870,7 +982,7 @@ function Player() {
           
           <h2 className="game-content-player-name">{playerName}</h2>        
           <h3 className="game-content-eggs">You have {coins} eggs </h3>
-
+          <h3 className="game-summary-current-action green-txt">Choose to challenge, block, or pass!</h3>
           <button className="btn-default action-btn" onClick={challenge} disabled={(!can_challenge || challenged || passed) }>Challenge</button>
           <button className="btn-default action-btn" onClick={block} disabled={(!can_block || challenged || passed)}>Block</button>
           {/* <button onClick={challenge}>Counteract</button> */}
@@ -887,8 +999,9 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
-          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
-          <h3 className="game-summary-current-action">{game.actionTaken? "They chose to: " + game.actionTaken: "They have not chosen what to do..."}</h3>
+          <div className="title">COOP</div> 
+          <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
+          <h3 className="game-summary-current-action">{ blocker_name + " blocked you! Choose to challenge or pass" }</h3>
           {playersItems}
         </div>
         <div className="game-content">
@@ -896,8 +1009,7 @@ function Player() {
         
           <h2 className="game-content-player-name">{playerName}</h2>        
           <h3 className="game-content-eggs">You have {coins} eggs </h3>
-          <span>Challenge or Pass the Block</span> <br></br>
-
+          <h3 className="game-summary-current-action green-txt">Challenge or Pass the Block!</h3>
           { (!challenged && !passed) ? <button className="btn-default action-btn" onClick={challengeBlock}>Challenge</button> : null }
           { !(passed) ? <button className="btn-default action-btn" onClick={pass}>Pass</button> : null }
         </div>
@@ -911,9 +1023,13 @@ function Player() {
     return (
       <div className="game-container">
         <div className="game-summary-container">
+          <div className="title">COOP</div> 
         <div className="error">{error}</div>
           <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
-          <h3 className="game-summary-current-action">{turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name + " to finish their turn." }</h3>
+          <h3 className="game-summary-current-action">{turn? "You chose to: " + game.actionTaken : "They chose to: " + game.actionTaken}</h3>
+          <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "You were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
+          <h3 className="game-summary-current-action">{challenger_name? challenged? "You challenged" : challenger_name + " challenged" : "" }</h3>
+          <h3 className="game-summary-current-action">{game.losePlayer? "Waiting on " + loser + " to choose which card to lose." : turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name + " to finish their turn." }</h3>
           {playersItems}
         </div>
 
@@ -926,6 +1042,7 @@ function Player() {
           {card_0}
           {card_1}
         </div>
+        <button className="btn-start-over" onClick={resetGame}>Start Over</button>
       </div>
     );
   }

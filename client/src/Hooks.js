@@ -25,3 +25,12 @@ export const useGetNestedObject = (nestedObj, pathArr) => {
   return pathArr.reduce((obj, key) =>
       (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);    
 }
+
+export const useGetNestedObjectLength = (nestedObj, pathArr) => {
+  let obj = pathArr.reduce((obj, key) =>
+      (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);   
+  if (obj && obj !== 'undefined'){
+    return obj.length; 
+  }
+  return obj;
+}
