@@ -730,20 +730,28 @@ function Player() {
 
   // ******* RENDER ******* 
   if (!playerName && game.players) {
-    return (
-      <div className="name-form">
-      <form onSubmit={handlePlayerNameSubmit} >
-        <div className="player-name-form">Player Name:</div>
-        <br></br>
-        <input 
-          type="text" 
-          value={playerNameForm}
-          onChange={(event) => {setPlayerNameForm(event.target.value)}}
-        />
-        <button className="btn btn-default" type="submit">Submit</button>
-      </form>
+    if ( game.players[playerid]) {
+      return (
+        <div className="name-form">
+        <form onSubmit={handlePlayerNameSubmit} >
+          <div className="player-name-form">Player Name:</div>
+          <br></br>
+          <input 
+            type="text" 
+            value={playerNameForm}
+            onChange={(event) => {setPlayerNameForm(event.target.value)}}
+          />
+          <button className="btn btn-default" type="submit">Submit</button>
+        </form>
+        </div>
+      );
+    } else {
+      return (
+      <div className="no-user-found">
+        Enter game {gameidURL} from the <Link className="green-txt" to='/'>HOME</Link> page to join the game.
       </div>
-    );
+      );
+    }
   }
   if (!alive && game.players) {
     return (
@@ -1020,6 +1028,11 @@ function Player() {
       </div>
     );
   } else {
+    if (!game.players || !game.players[playerid]) {
+      return(
+        <div className="no-user-found"> <h1>WAITING...</h1></div>
+      );
+    }
     return (
       <div className="game-container">
         <div className="game-summary-container">

@@ -425,3 +425,8 @@ a:active {
 .error {
   color: red;
 }
+
+.no-user-found {
+  margin: 0 auto;
+  padding-top: 200px;
+}
