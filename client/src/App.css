@@ -75,9 +75,10 @@ html, body {
   padding: 20px;
   background-color: #f7fbf0;
   border-radius: 3px;
-  width: 380px;
-  flex-basis: 50%;
+  width: 100%;
+  /* flex-basis: 50%; */
   margin: 10px;
+  justify-content: center;
 }
 
 .game-content-eggs {
@@ -157,8 +158,21 @@ input.home-input {
   border-right: 1px solid #ddd;
 }
 
+.cards-container-outer {
+  padding-top: 50px;
+}
+
 .cards-container {
   display: flex;
+  justify-content: center;
+  /* padding-top: 50px; */
+  /* flex-direction: column; */
+}
+
+.cards-and-rules-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   /* flex-direction: column; */
 }
 
@@ -166,16 +180,19 @@ input.home-input {
   margin: 10px;
   padding: 15px;
   background-color: #f7fbf0;
-  border-radius: 3px;
+  border-radius: 10px;
   
-  /* border: 1px solid; */
+  border: 1px solid;
+  /* border-color: #4a4c47ba; */
   /* width: 100px; */
   /* text-align: center; */
   /* box-shadow: 5px 7px #606756; */
   max-width: 200px;
   /* margin-bottom: 50px; */
   /* height: 300px; */
+  height: 251px;
   align-self: center;
+
 }
 
 .player-cards img {
@@ -186,10 +203,11 @@ input.home-input {
 }
 
 .character-header {
-  margin-top: 10px;
+  /* margin-top: 10px; */
   margin-bottom: 15px;
   text-align: center;
   font-size: 22px;
+  font-weight: bold;
 }
 
 /* .game-content button {
@@ -429,4 +447,49 @@ a:active {
 .no-user-found {
   margin: 0 auto;
   padding-top: 200px;
+}
+
+.rules-container {
+  display: flex;
+  /* flex-direction: column; */
+}
+
+.rules-col {
+  margin: 10px;
+  /* display: flex; */
+}
+
+.rules-note {
+  font-size: 12px;
+}
+
+.rules-item {
+  /* margin: 10px; */
+  margin-bottom: 3px;
+  /* width: 50px; */
+  height: 35px;
+}
+.rules-sub-title {
+  /* font-size: 1.1em; */
+  /* font-size: 22px; */
+  /* font-size: 19px; */
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.rules-header {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  font-size: 22px;
+  margin-top: 5px;
+  /* margin-top: 10px; */
+  /* flex-basis: 100%; */
+}
+
+.rules-container-outer {
+  background-color: #f7fbf0;
+  padding: 10px;
+  padding-left: 40px;
+  padding-top: 50px;
 }

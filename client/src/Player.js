@@ -621,22 +621,84 @@ function Player() {
         });
     }
 
-  let card_0 = ""
-  let card_1 = ""
-
+  let cards = ""
   if(game.players) {
-  card_0 = 
-  <div className={character_0_active? "player-cards": "player-cards dead"}>
-    <div><h3 className="character-header">The {character_0_name}</h3></div>
-    {/* <div>{ (character_0_active) ? <span>Alive</span> : <span>Dead</span> }</div> */}
-    <img src={character_images[character_0]}></img>
+  cards = 
+  <div className="cards-container-outer">
+    <div className="rules-header">Cards</div>
+    <div className="cards-container">
+      <div className={character_0_active? "player-cards": "player-cards dead"}>
+        <div className="character-header">The {character_0_name}</div>
+        {/* <div>{ (character_0_active) ? <span>Alive</span> : <span>Dead</span> }</div> */}
+        <img src={character_images[character_0]}></img>
+      </div>
+      <div className={character_1_active? "player-cards": "player-cards dead"}>
+        <div className="character-header">The {character_1_name}</div>
+        <img src={character_images[character_1]}></img>
+        {/* <div>{ (character_1_active) ? <span>Alive</span> : <span>Dead</span> }</div> */}
+      </div>
+    </div>
   </div>
-  card_1 =
-  <div className={character_1_active? "player-cards": "player-cards dead"}>
-    <div><h3 className="character-header">The {character_1_name}</h3></div>
-    <img src={character_images[character_1]}></img>
-    {/* <div>{ (character_1_active) ? <span>Alive</span> : <span>Dead</span> }</div> */}
-  </div>
+  }
+
+  let game_rules = "";
+  if (game.players) {
+    game_rules = 
+    <div className="rules-container-outer">
+    <div className="rules-header">Game Rules</div>
+    <div className="rules-container">
+      <div className="rules-col">
+        <div className="rules-sub-title">Character</div>
+        <div className="rules-item">---</div>
+        <div className="rules-item">---</div>
+        <div className="rules-item">---</div>
+        <div className="rules-item">Hen</div>        
+        <div className="rules-item">Fox</div>
+        <div className="rules-item">Chick</div>
+        <div className="rules-item">Rooster</div>
+        <div className="rules-item">Dog</div>
+      </div>
+      <div className="rules-col">
+        <div className="rules-sub-title">Action</div>
+        <div className="rules-item">Income</div>
+        <div className="rules-item">Aid</div>
+        <div className="rules-item">Coop</div>
+        <div className="rules-item">Tax</div>
+        <div className="rules-item">Assassinate</div>
+        <div className="rules-item">Exchange</div>
+        <div className="rules-item">Steal</div>
+        <div className="rules-item">X</div>
+      </div>
+      <div className="rules-col">
+        <div className="rules-sub-title">Effect</div>
+        <div className="rules-item">Take 1 coin</div>
+        <div className="rules-item">Take 2 coins</div>
+        <div className="rules-item">Pay 7 coins 
+          <div className="rules-note">choose player to lose card</div>
+        </div>
+        <div className="rules-item">Take 3 coins</div>
+        <div className="rules-item">Pay 3 coins
+          <div className="rules-note">choose player to lose card</div>
+        </div>
+        <div className="rules-item">Exchange cards</div>
+        <div className="rules-item">Steal 2 coins
+        <div className="rules-note">choose player to steal from</div>
+        </div>
+        <div className="rules-item">X</div>
+      </div>
+      <div className="rules-col">
+        <div className="rules-sub-title">Counteraction</div>
+        <div className="rules-item">X</div>
+        <div className="rules-item">X</div>
+        <div className="rules-item">X</div>
+        <div className="rules-item">Blocks aid</div>
+        <div className="rules-item">X</div>
+        <div className="rules-item">Blocks stealing</div>
+        <div className="rules-item">Blocks stealing</div>
+        <div className="rules-item">Blocks assassination</div>
+      </div>
+    </div>
+    </div>
   }
 
   
@@ -767,10 +829,11 @@ function Player() {
           <h2 className="game-content-player-name">{playerName}</h2>        
           <h3>You are DEAD :( </h3>
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
+        
       </div>
     );
   }
@@ -789,9 +852,9 @@ function Player() {
           <h3 className="game-content-eggs">You have {coins} eggs </h3>
           <h3>You are the WINNER! </h3>  
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
       </div>
     );
@@ -819,9 +882,9 @@ function Player() {
             <button className="btn-default action-btn" type="submit">Submit</button>
           </form>
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
       </div>
     );
@@ -859,8 +922,8 @@ function Player() {
           <button className="btn-default action-btn" type="submit">Submit</button>
         </form>
       </div>
-      {card_0}
-      {card_1}
+      {cards}
+      {game_rules}
     </div>
     );
   }
@@ -883,9 +946,9 @@ function Player() {
           <button className="btn-default action-btn" type="submit" >Submit</button>
           </form>
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
       </div>
     );
@@ -906,9 +969,9 @@ function Player() {
           <button className="btn-default action-btn" type="submit" >Submit</button>
           </form>
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
       </div>
     );
@@ -931,9 +994,9 @@ function Player() {
           <button className="btn-default action-btn" type="submit" >Submit</button>
           </form>
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
       </div>
     );
@@ -965,10 +1028,11 @@ function Player() {
           <button className="btn-default action-btn" onClick={action} name="steal" disabled={actionChosen}>Steal</button>
           <button className="btn-default action-btn" onClick={action} name="assassinate" disabled={actionChosen || (coins < 3)}>Assassinate</button>
           <button className="btn-default action-btn" onClick={action} name="coop" disabled={!can_coop || actionChosen}>Coop!</button>
+      
+      <div className="cards-and-rules-container">
+        {cards}
+        {game_rules}
       </div>
-      <div className="cards-container">
-        {card_0}
-        {card_1}
       </div>
       <button className="btn-start-over" onClick={resetGame}>Start Over</button>
     </div>
@@ -996,9 +1060,9 @@ function Player() {
           {/* <button onClick={challenge}>Counteract</button> */}
           <button className="btn-default action-btn" onClick={pass} disabled={(passed || challenged)}>Pass</button>
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
       </div>
     );
@@ -1020,10 +1084,11 @@ function Player() {
           <h3 className="game-summary-current-action green-txt">Challenge or Pass the Block!</h3>
           { (!challenged && !passed) ? <button className="btn-default action-btn" onClick={challengeBlock}>Challenge</button> : null }
           { !(passed) ? <button className="btn-default action-btn" onClick={pass}>Pass</button> : null }
+        
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
         </div>
       </div>
     );
@@ -1042,7 +1107,7 @@ function Player() {
           <h3 className="game-summary-current-action">{turn? "You chose to: " + game.actionTaken : "They chose to: " + game.actionTaken}</h3>
           <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "You were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
           <h3 className="game-summary-current-action">{challenger_name? challenged? "You challenged" : challenger_name + " challenged" : "" }</h3>
-          <h3 className="game-summary-current-action">{game.losePlayer? "Waiting on " + loser + " to choose which card to lose." : turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name + " to finish their turn." }</h3>
+          <h3 className="game-summary-current-action">{game.losePlayer? "Waiting on " + loser + " to choose which card to lose." : turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name  }</h3>
           {playersItems}
         </div>
 
@@ -1050,10 +1115,12 @@ function Player() {
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <h2 className="game-content-player-name">{playerName}</h2>        
           <h3 className="game-content-eggs">You have {coins} eggs </h3>
+        
+        <div className="cards-and-rules-container">
+          {cards}
+          {game_rules}
         </div>
-        <div className="cards-container">
-          {card_0}
-          {card_1}
+
         </div>
         <button className="btn-start-over" onClick={resetGame}>Start Over</button>
       </div>
