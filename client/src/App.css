@@ -452,6 +452,7 @@ a:active {
 .rules-container {
   display: flex;
   /* flex-direction: column; */
+  justify-content: center;
 }
 
 .rules-col {
@@ -490,6 +491,6 @@ a:active {
 .rules-container-outer {
   background-color: #f7fbf0;
   padding: 10px;
-  padding-left: 40px;
-  padding-top: 50px;
+
+  padding: 50px 20px;
 }
