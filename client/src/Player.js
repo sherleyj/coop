@@ -30,6 +30,7 @@ function Player() {
   const [numSelected, setNumSelected] = useState(0);
   const [playerNameForm, setPlayerNameForm] = useState("");
   const [error, setError] = useState("");
+  const [polling, setPolling] = useState(true);
 
   useEffect (() => {
     getGameAPI();
@@ -38,12 +39,15 @@ function Player() {
   console.log(game);
 
   const getGameAPI = async () => {
+    console.log("----- IN GETGAMEAPI -----")
     try {
         const data = await fetch(
             '/api/getGame/' + gameidURL
         );
 
         const gameFromAPI = await data.json(); 
+
+        console.log("GETGAMEAPI, got game: ", gameFromAPI);
         setGame({
           ...gameFromAPI,
           players : [...gameFromAPI.players],
@@ -56,6 +60,7 @@ function Player() {
     }
   };  
 
+  console.log("polling: ", polling);
   const resetGame = async () => {
     try {
       const requestOptions = {
@@ -64,24 +69,31 @@ function Player() {
         body: JSON.stringify({"gameId": gameidURL})
       };
 
+      console.log("RESET! Setting game to {}");
+      setPolling(false);
+      setGame({});
 
       const data = await fetch('/api/resetGame', requestOptions);
       const gameFromAPI = await data.json();
 
-      if (data.status == 418) {
+      if (data.status && data.status == 418) {
         setError(gameFromAPI.error);
         game.actionTaken = "";
-        console.log("gameFromAPI", gameFromAPI);
-        console.log("error", gameFromAPI.error);
+        // console.log("gameFromAPI", gameFromAPI);
+        console.log(":( error", gameFromAPI.error);
+        return;
       }
-      else {
+      
+        console.log(" RESET GAME, Game is now: ", gameFromAPI);
         setError("");
         setGame({
           ...gameFromAPI,
           players : [...gameFromAPI.players],
           characters : [...gameFromAPI.characters]
         });
-      }
+        setPolling(true);
+
+      
 
 
     } catch (e) {
@@ -492,12 +504,12 @@ function Player() {
   const blocker_name = useGetNestedObject(game, ['players', game.blockedBy, 'playerName']);
   const blocker = game.blockedBy === playerid? true : false;
   const challenger_name = getChallengerPlayerName();
-  console.log("blocker: ", blocker);
-  console.log("blockedBy: ", game.blockedBy);
-  console.log("playerid: ", playerid);
+  // console.log("blocker: ", blocker);
+  // console.log("blockedBy: ", game.blockedBy);
+  // console.log("playerid: ", playerid);
 
   const loser = getLosePlayerName();
-  console.log("loser ", loser);
+  // console.log("loser ", loser);
 
   const playerName = useGetNestedObject(game, ['players', playerid, 'playerName']);
   const character_0 =  useGetNestedObject(game, ['players', playerid, 'characters', 0, "id"]); 
@@ -515,7 +527,7 @@ function Player() {
 
   const last_action = game.actionTaken ? game.actionTaken : "";
   const turn_player_name = useGetNestedObject(game, ['players', game.pTurnId, 'playerName']);
-  console.log("turn_player_name: ",turn_player_name);
+  // console.log("turn_player_name: ",turn_player_name);
   let active_players = new Array(game.numPlayers);
 
   let character_images = ""
@@ -780,15 +792,15 @@ function Player() {
 
 // polling
   useInterval(async () => {
-    if (!turn || (turn && game.challenge)) {
+    if (polling) {
       return await getGameAPI();
     }
   }, 5000);
 
 
-  console.log(!game.actionTaken);
-  console.log(!game.challenge);
-  console.log(turn)
+  // console.log(!game.actionTaken);
+  // console.log(!game.challenge);
+  // console.log(turn)
 
   // ******* RENDER ******* 
   if (!playerName && game.players) {

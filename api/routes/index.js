@@ -261,7 +261,7 @@ router.post('/api/resetGame', function(req, res) {
     console.log("reset the game:");
     console.log(newGame);
     redis.set(gameId, JSON.stringify(newGame));
-    res.json(resJSON);
+    res.json(newGame);
   }).catch(function (error) {
     console.log(error);
     res.send("There was an error.");
