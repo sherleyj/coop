@@ -405,6 +405,10 @@ h1 {
   color: green;
 }
 
+.red-txt {
+  color: #da3333;
+}
+
 .player-name-form {
   font-size: 1.5em;
 }

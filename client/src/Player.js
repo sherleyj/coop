@@ -529,6 +529,7 @@ function Player() {
 
   const last_action = game.actionTaken ? game.actionTaken : "";
   const turn_player_name = useGetNestedObject(game, ['players', game.pTurnId, 'playerName']);
+  const winner_name = useGetNestedObject(game, ['players', game.winner, 'playerName']);;
   // console.log("turn_player_name: ",turn_player_name);
   let active_players = new Array(game.numPlayers);
 
@@ -834,13 +835,19 @@ function Player() {
       <div className="game-container">
         <div className="game-summary-container">
           <div className="title">COOP</div> 
-          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
-          <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>          {playersItems}
+        <div className="error">{error}</div>
+          <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
+          <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
+          <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "You were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
+          <h3 className="game-summary-current-action">{challenger_name? challenged? "You challenged" : challenger_name + " challenged" : "" }</h3>
+          <h3 className="game-summary-current-action">{game.losePlayer? "Waiting on " + loser + " to choose which card to lose." : game.winner? winner_name + " won!" : turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name  }</h3>
+          {playersItems}
         </div>
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3>You are DEAD :( </h3>
+          <h2 className="game-content-player-name">{playerName}</h2>    
+          <h3 className="game-content-eggs">You have {coins} eggs </h3>    
+          <h3 className="red-txt">You are DEAD :( </h3>
         
         <div className="cards-and-rules-container">
           {cards}
@@ -863,7 +870,7 @@ function Player() {
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <h2 className="game-content-player-name">{playerName}</h2>        
           <h3 className="game-content-eggs">You have {coins} eggs </h3>
-          <h3>You are the WINNER! </h3>  
+          <h3 className="green-txt">You are the WINNER! </h3>  
         
         <div className="cards-and-rules-container">
           {cards}
