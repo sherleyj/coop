@@ -766,13 +766,14 @@ router.post('/api/pass', (req, res) => {
       game.passed = game.passed + 1;
       game.players[playerId].passed = true;
     
-      if (game.passed == game.activePlayers - 1 && !game.blockedBy){ 
+      if (game.passed == game.activePlayers - 1 && game.blockedBy === ""){ 
         game.challenge = false;
         console.log("resolving action with game: ", game)
         game = resolveAction(game, game.pTurnId, game.actionTaken, game.actOnId); 
       }
 
-      if (game.passed == game.activePlayers - 1 && game.blockedBy) {
+      if (game.passed == game.activePlayers - 1 && game.blockedBy !== "") {
+        console.log("passed on BLOCK. next turn.: ", game)
         game = nextTurn(game);
       }
       
@@ -940,7 +941,8 @@ function resolveAction(game, playerId, action, actOnId) {
     case "assassinate" :
       console.log("case assassinate")
       game.players[playerId].actionTaken = "assassinate";
-      if (actOnId.length && !game.blockedBy) {
+      if (actOnId.length) {
+        game.players[playerId].coins -= 3;
         game = loseInfluence(game, actOnId[0], true)
       } 
         
@@ -956,7 +958,7 @@ function loseInfluence(game, playerId, goToNextTurn) {
     console.log("player needs to choose which card they lose.")
     game.players[playerId].losePlayer = true;
     game.losePlayer = true;
-  } else  {
+  } else  { // for failed challenge on assassinate or failed block challenge on assassinate
     console.log("player is now DEAD");
     game.players[playerId].characters[1].active = false;
     game.players[playerId].characters[0].active = false;

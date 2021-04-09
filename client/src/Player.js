@@ -583,7 +583,7 @@ function Player() {
                 <div key={p.id} className="player">
                   <div className="player-name">{playerName}</div> 
                     <span> DEAD </span>
-                    <div className="player-eggs">Eggs: {p.coins}</div>
+                    <div className="player-eggs">Coins: {p.coins}</div>
                     <div className="revealed-card">
                           <span>{character_0_name} </span>
                           <img src={character_0_img} ></img>
@@ -602,7 +602,7 @@ function Player() {
                     <div key={p.id} className="player">
                       <div className="player-name">{playerName}</div> 
                         <span> WINNER!!! </span>
-                        <div className="player-eggs">Eggs: {p.coins}</div>
+                        <div className="player-eggs">Coins: {p.coins}</div>
                         <div className="revealed-card">
                           <span>{character_0_name} </span>
                           <img src={character_0_img} ></img>
@@ -620,7 +620,7 @@ function Player() {
                     <div className={p.turn ? "player-item highlight" : "player-item"}>
                     <div key={p.id} className="player">
                       <div className="player-name">{playerName}</div> 
-                        <div className="player-eggs">Eggs: {p.coins}</div>
+                        <div className="player-eggs">Coins: {p.coins}</div>
                         <div className="revealed-card">
                           <span>{character_0_name} </span>
                           <img src={character_0_img} ></img>
@@ -733,7 +733,7 @@ function Player() {
             checked={actOnChecked == p.id}
             key = {p.id}
             onChange={handleActOnChange}
-          /> {p.id + 1}
+          /> {p.playerName}
           </div> )
       }
     });
@@ -750,7 +750,7 @@ function Player() {
             checked={actOnChecked == p.id}
             key = {p.id}
             onChange={handleActOnChange}
-          /> {p.id + 1}
+          /> {p.playerName}
           </div> ) 
       }
     });
@@ -846,7 +846,7 @@ function Player() {
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <h2 className="game-content-player-name">{playerName}</h2>    
-          <h3 className="game-content-eggs">You have {coins} eggs </h3>    
+          <h3 className="game-content-eggs">You have {coins} coins </h3>    
           <h3 className="red-txt">You are DEAD :( </h3>
         
         <div className="cards-and-rules-container">
@@ -869,7 +869,7 @@ function Player() {
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} eggs </h3>
+          <h3 className="game-content-eggs">You have {coins} coins </h3>
           <h3 className="green-txt">You are the WINNER! </h3>  
         
         <div className="cards-and-rules-container">
@@ -895,7 +895,7 @@ function Player() {
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} eggs </h3>
+          <h3 className="game-content-eggs">You have {coins} coins </h3>
           <br></br>
           <h3 className="game-content-eggs">Pick {game.players[game.pTurnId].influence} cards to keep:</h3>
           {/* <div>Pick {game.players[game.pTurnId].influence} cards to keep:</div> */}
@@ -1042,10 +1042,10 @@ function Player() {
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
 
-          <h2 className="game-content-player-name">{playerName}, You have {coins} eggs</h2>
+          <h2 className="game-content-player-name">{playerName}, You have {coins} coins</h2>
           <h3 className="game-summary-current-action green-txt">Choose what action you want to take</h3>
 
-          {/* <h3 className="game-content-eggs">You have {coins} eggs </h3> */}
+          {/* <h3 className="game-content-eggs">You have {coins} coins </h3> */}
           
           
           <button className="btn-default action-btn" onClick={action} name="income" disabled={actionChosen}>Collect Income</button>
@@ -1081,7 +1081,7 @@ function Player() {
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           
           <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} eggs </h3>
+          <h3 className="game-content-eggs">You have {coins} coins </h3>
           <h3 className="game-summary-current-action green-txt">Choose to challenge, block, or pass!</h3>
           <button className="btn-default action-btn" onClick={challenge} disabled={(!can_challenge || challenged || passed) }>Challenge</button>
           <button className="btn-default action-btn" onClick={block} disabled={(!can_block || challenged || passed)}>Block</button>
@@ -1109,7 +1109,7 @@ function Player() {
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
         
           <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} eggs </h3>
+          <h3 className="game-content-eggs">You have {coins} coins </h3>
           <h3 className="game-summary-current-action green-txt">Challenge or Pass the Block!</h3>
           { (!challenged && !passed) ? <button className="btn-default action-btn" onClick={challengeBlock}>Challenge</button> : null }
           { !(passed) ? <button className="btn-default action-btn" onClick={pass}>Pass</button> : null }
@@ -1145,7 +1145,7 @@ function Player() {
         <div className="game-content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} eggs </h3>
+          <h3 className="game-content-eggs">You have {coins} coins </h3>
         
         <div className="cards-and-rules-container">
           {cards}

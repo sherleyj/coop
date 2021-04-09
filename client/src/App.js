@@ -12,7 +12,7 @@ import {
 import { GameContext } from './GameContext';
 import { GameProvider } from './GameContext';
 
-const nouns = ["cat", "dog", "narwhal", "larry"];
+const nouns = ["cat", "dog", "narwhal", "larry", "koala", "hippo"];
 const verbs = ["lazy", "hungry", "zealous", "secret"];
 const adverbs = ["super", "tensely", "weakly", "sickly"];
 
