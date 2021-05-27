@@ -3,14 +3,18 @@ body {
   /* background-color: #cad4b9;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='24' viewBox='0 0 88 24'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='autumn' fill='%23dfe7de' fill-opacity='0.4'%3E%3Cpath d='M10 0l30 15 2 1V2.18A10 10 0 0 0 41.76 0H39.7a8 8 0 0 1 .3 2.18v10.58L14.47 0H10zm31.76 24a10 10 0 0 0-5.29-6.76L4 1 2 0v13.82a10 10 0 0 0 5.53 8.94L10 24h4.47l-6.05-3.02A8 8 0 0 1 4 13.82V3.24l31.58 15.78A8 8 0 0 1 39.7 24h2.06zM78 24l2.47-1.24A10 10 0 0 0 86 13.82V0l-2 1-32.47 16.24A10 10 0 0 0 46.24 24h2.06a8 8 0 0 1 4.12-4.98L84 3.24v10.58a8 8 0 0 1-4.42 7.16L73.53 24H78zm0-24L48 15l-2 1V2.18A10 10 0 0 1 46.24 0h2.06a8 8 0 0 0-.3 2.18v10.58L73.53 0H78z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); */
 
-  background-color: #cad4b9;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='24' viewBox='0 0 88 24'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='autumn' fill='%23d6dbd5' fill-opacity='0.4'%3E%3Cpath d='M10 0l30 15 2 1V2.18A10 10 0 0 0 41.76 0H39.7a8 8 0 0 1 .3 2.18v10.58L14.47 0H10zm31.76 24a10 10 0 0 0-5.29-6.76L4 1 2 0v13.82a10 10 0 0 0 5.53 8.94L10 24h4.47l-6.05-3.02A8 8 0 0 1 4 13.82V3.24l31.58 15.78A8 8 0 0 1 39.7 24h2.06zM78 24l2.47-1.24A10 10 0 0 0 86 13.82V0l-2 1-32.47 16.24A10 10 0 0 0 46.24 24h2.06a8 8 0 0 1 4.12-4.98L84 3.24v10.58a8 8 0 0 1-4.42 7.16L73.53 24H78zm0-24L48 15l-2 1V2.18A10 10 0 0 1 46.24 0h2.06a8 8 0 0 0-.3 2.18v10.58L73.53 0H78z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  font-family: Trebuchet MS;
+  /* background-color: #cad4b9; */
+  /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='24' viewBox='0 0 88 24'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='autumn' fill='%23d6dbd5' fill-opacity='0.4'%3E%3Cpath d='M10 0l30 15 2 1V2.18A10 10 0 0 0 41.76 0H39.7a8 8 0 0 1 .3 2.18v10.58L14.47 0H10zm31.76 24a10 10 0 0 0-5.29-6.76L4 1 2 0v13.82a10 10 0 0 0 5.53 8.94L10 24h4.47l-6.05-3.02A8 8 0 0 1 4 13.82V3.24l31.58 15.78A8 8 0 0 1 39.7 24h2.06zM78 24l2.47-1.24A10 10 0 0 0 86 13.82V0l-2 1-32.47 16.24A10 10 0 0 0 46.24 24h2.06a8 8 0 0 1 4.12-4.98L84 3.24v10.58a8 8 0 0 1-4.42 7.16L73.53 24H78zm0-24L48 15l-2 1V2.18A10 10 0 0 1 46.24 0h2.06a8 8 0 0 0-.3 2.18v10.58L73.53 0H78z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); */
+  /* font-family: Trebuchet MS; */
+  background-color: #f7fbf0;
+  background-color: #dcc5a8ad;
+  background-color: #343142; /*night barn*/
+  color: #fed6a7;/* night barn */
 }
 
 .title {
   text-align: center;
-  background-color: #f7fbf0;
+  /* background-color: #f7fbf0; */
   font-size: 2em;
   font-weight: bold;
   width: 100%;
@@ -46,6 +50,7 @@ html, body {
   margin: 0;
   color: #2c2f28;
   height: 100%;
+  color: #fed6a7;/* night barn */
 }
 
 #root {
@@ -57,7 +62,7 @@ html, body {
 
 .home-content {
   padding: 75px;
-  background-color: #f7fbf0;
+  background-color: #343142;
   border-radius: 3px;
   /* border: 1px solid; */
   max-width: 600px;
@@ -70,6 +75,7 @@ html, body {
   align-self: center;
   /* position: absolute; top: 0; right: 0; bottom: 0; left: 0; */
 }
+
 
 .game-content {
   padding: 20px;
@@ -164,7 +170,7 @@ input.home-input {
 
 .cards-container {
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   /* padding-top: 50px; */
   /* flex-direction: column; */
 }
@@ -174,6 +180,7 @@ input.home-input {
   justify-content: center;
   flex-wrap: wrap;
   /* flex-direction: column; */
+
 }
 
 .player-cards {
@@ -195,12 +202,7 @@ input.home-input {
 
 }
 
-.player-cards img {
-  width: 114px;
-  padding: 0 15px;
-  margin-left: auto;
-  margin-right: auto;
-}
+
 
 .character-header {
   /* margin-top: 10px; */
@@ -240,8 +242,22 @@ input.home-input {
 }
 
 .player-item {
-  margin: 0px 10px;
+  margin: 10px;
   padding: 5px;
+  width: 283px;
+  text-align: center;
+  background-color: #ffffffad;
+  border-radius: 2%;
+  box-shadow: 2px 2px 2px #bdae96;
+  box-shadow: 2px 2px 2px #351a16; /* night barn */
+  background-color: #be5e4d;/* night barn */
+}
+
+.p-cards-item {
+  padding: 22px 0px;
+  /* margin: 14px 0px; */
+  border-bottom: 1px solid #2c2f28;
+
 }
 
 .game-summary-title {
@@ -260,6 +276,8 @@ input.home-input {
 .player-name {
   font-size: 15px;
   font-weight: bold;
+  text-align: center;
+  padding-bottom: 5px;
 }
 
 .player-eggs {
@@ -273,17 +291,58 @@ input.home-input {
 }
 
 .player-item img {
-  width: 15px;
+  width: 39px;
   float: right;
+  border-radius: 45%;
+}
+
+.p-cards-label {
+  font-size: 14px;
+  /* width: 100%; */
+  /* display:block; */
+  /* text-align: center; */
+  float: left;
+  color: black;
+  /* border-bottom: 1px solid #2c2f28; */
+}
+.p-cards-value {
+  font-size: 20px;
+  /* float: right; */
+  text-align: center;
+  float: right;
+}
+
+.p-cards-cards {
+  height: 83px;
+}
+
+.challenge {
+  text-align: center;
+  color: red;
 }
 
 .revealed-card {
   /* align-items: center; */
   overflow: auto;
+  /* float: right; */
+  /* padding: 0px 5px; */
+  vertical-align: top;
+  display: inline-block;
+  text-align: center;
+  /* width: 125px; */
+  margin: 10px 15px;
 }
 
-.revealed-card span {
-  padding-right: 4px;
+.player-cards img {
+  width: 114px;
+  /* padding: 0 15px; */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.revealed-card figcaption {
+  /* padding-right: 4px; */
+  display: block;
 }
 
 .dead {
@@ -314,13 +373,22 @@ input.home-input {
   font-size: 20px;
 }
 
+.players-container {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .player {
   padding: 10px;
+  text-align: left;
 }
 
 .highlight {
-  border: 2px solid;
-  border-color: green;
+  border: 3px solid;
+  border-color: #5ba030;
+  border-color: #82a971; /*night barn*/
   border-radius: 3px;
 }
 
@@ -375,7 +443,7 @@ h1 {
 
 }
 
-.btn-default {
+.btn-default:enabled {
   height: 62px;
   width: 120px;
   padding: 5px 10px;
@@ -386,15 +454,38 @@ h1 {
   cursor: pointer;
   font-family: inherit;
   border-radius: 3px;
+  background-color: #fbf3d9; /*night barn*/
+  box-shadow: 2px 2px 2px #31302c; /*night barn*/
+  color: #343142; /*night barn*/
+}
+
+.btn-default:disabled {
 
 }
 
-.action-btn {
+.btn-default:hover:enabled {
+  color: #fbf3d9;
+  background-color: #343142;
+}
+
+.action-btn:enabled {
   padding:3px;
   margin-right: 10px;
   margin-top: 10px;
   width: 180px;
   height: 84px;
+  border-radius: 4%;
+  /* box-shadow: 1px 1px 1px #bdae96; */
+}
+
+.action-btn:disabled {
+  padding:3px;
+  margin-right: 10px;
+  margin-top: 10px;
+  width: 180px;
+  height: 84px;
+  border-radius: 4%;
+  /* box-shadow: 1px 1px 1px #bdae96; */
 }
 
 .green {
@@ -402,11 +493,13 @@ h1 {
 }
 
 .green-txt {
-  color: green;
+  color: #5ba030;
+  color: #82a971;
 }
 
 .red-txt {
   color: #da3333;
+  color: #770505; /*night barn*/
 }
 
 .player-name-form {
@@ -457,6 +550,9 @@ a:active {
   display: flex;
   /* flex-direction: column; */
   justify-content: center;
+  transition: max-height 0.35s ease-in-out;
+  /* transition: flex 0.3s ease-in-out; */
+
 }
 
 .rules-col {
@@ -484,17 +580,99 @@ a:active {
 
 .rules-header {
   width: 100%;
-  text-align: center;
+  text-align: left;
   font-weight: bold;
   font-size: 22px;
   margin-top: 5px;
+  margin-left: 10px;
   /* margin-top: 10px; */
   /* flex-basis: 100%; */
 }
 
 .rules-container-outer {
-  background-color: #f7fbf0;
+  background-color: #fed6a7;
   padding: 10px;
-
   padding: 50px 20px;
+  color: #343142;
 }
+
+/* ***** TESTING ***** */
+.title {
+  /* grid-area: title; */
+  margin-top: 40px;
+}
+
+.summary {
+  /* grid-area: summary; */
+  text-align: center;
+  /* min-width: 192px; */
+  /* max-width: 250px; */
+}
+
+.content {
+  /* grid-area: content; */
+  text-align: center;
+  margin-left: 10px;
+}
+
+.cards {
+  /* grid-area: cards; */
+}
+
+.rules {
+  /* grid-area: rules; */
+  padding-top: 90px;
+}
+
+/* .container {
+  display: grid; */
+  /* grid-template-areas: 'title title title title title title'
+                       'summary summary summary summary summary summary'
+                       'content content content content content content'
+                       'cards cards cards rules rules rules'; */
+  /* grid-template-areas: 'title title title title title title'
+                       'summary summary summary summary summary summary'
+                       'content content  content content content content'
+                       'cards cards cards rules rules rules';
+} */
+
+.summary .player-item {
+  display: inline-block;
+}
+
+
+.rules-collapse {
+  /* max-height: 0px; */
+  /* transition: all 0.5s ease-in-out; */
+  /* transition: all 1s ease-out; */
+  transition: max-height 0.35s ease-in;
+  /* transition: max-height 1s ease-in-out; */
+}
+
+.footer {
+  height: 50px;
+}
+
+.rules-btn:enabled {
+  margin: 0 auto;
+  display: block;
+  width: 100%;
+  /* margin-bottom: 0px; */
+  border-radius: 0;
+  text-align: left;
+  font-size: 25px;
+  padding-left: 60px;
+  /* border: none; */
+}
+
+.rules-btn-label {
+  padding-left: 20px;
+  float: left;
+  font-size: 25px;
+}
+
+.rules-btn-symbol {
+  padding-right: 20px;
+  float: right;
+}
+

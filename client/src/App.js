@@ -136,7 +136,7 @@ console.log(playerId);
             onChange={(event) => {setPlayerName(event.target.value)}}
           />
           <br></br>
-          <button className="btn btn-default green" type="submit">Go</button>
+          <button className="btn btn-default btn-home" type="submit">Go</button>
         </form>
       </div>
     </div>

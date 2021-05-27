@@ -36,6 +36,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 0,
         "characters": [{"id": 2, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "lastAction": "",
         "playerName": "",
         "coins": 2,
         "turn": true,
@@ -50,6 +51,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 1,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "lastAction": "",
         "playerName": "",
         "coins": 2,
         "turn": false,
@@ -64,6 +66,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 2,
         "characters": [{"id": 3, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "lastAction": "",
         "playerName": "",
         "coins": 2,
         "turn": false,
@@ -78,6 +81,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 3,
         "characters": [{"id": 0, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "lastAction": "",
         "playerName": "",
         "coins": 2,
         "turn": false,
@@ -92,6 +96,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 4,
         "characters":[{"id": 4, "active": true}, {"id": 1, "active": true}],
         "influence": 2,
+        "lastAction": "",
         "playerName": "",
         "coins": 2,
         "turn": false,
@@ -106,6 +111,7 @@ router.get('/api/getGame/:id', function(req, res, next) {
         "id": 5,
         "characters": [{"id": 2, "active": true}, {"id": 0, "active": true}],
         "influence": 2,
+        "lastAction": "",
         "playerName": "",
         "coins": 2,
         "turn": false,
@@ -237,6 +243,7 @@ router.post('/api/resetGame', function(req, res) {
         "id": n,
         "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
         "influence": 2,
+        "lastAction": "",
         "playerName": game.players[n].playerName,
         "coins": 2,
         "turn": newGame.pTurnId == n? true : false,
@@ -312,6 +319,7 @@ router.post('/api/createGame', function(req, res) {
           "id": resJSON.numPlayers,
           "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
           "influence": 2,
+          "lastAction": "",
           "playerName": playerName,
           "coins": 2,
           "turn": false,
@@ -407,6 +415,7 @@ router.post('/api/createGame', function(req, res) {
           "id": 0,
           "characters": [{"id": 0, "active": true}, {"id": 0, "active": true}],
           "influence": 2,
+          "lastAction": "",
           "playerName": playerName,
           "coins": 2,
           "turn": true,
@@ -991,6 +1000,8 @@ function checkWinner(game) {
   // TODO: skip inactive players when setting next players turn.
 function nextTurn(game) {
   console.log("in NextTurn, gameid: ", game.gameId);
+  game.players[game.pTurnId].lastAction = game.actionTaken;
+
   game.players[game.pTurnId].turn = false;
 
   // game.players[game.pTurnId].blockedBy = "";
@@ -1012,6 +1023,7 @@ function nextTurn(game) {
     p.passed = false;
     p.challenge = false;
     p.actionTaken = "";
+    p.losePlayer = false;
   })
 
   console.log("in nextTurn, game:", game);
