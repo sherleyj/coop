@@ -32,6 +32,7 @@ function Player() {
   const [error, setError] = useState("");
   const [polling, setPolling] = useState(true);
   const [rules, setRules] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect (() => {
     getGameAPI();
@@ -93,9 +94,7 @@ function Player() {
           characters : [...gameFromAPI.characters]
         });
         setPolling(true);
-
-      
-
+        setShowModal(!showModal);
 
     } catch (e) {
         console.log(e);
@@ -487,7 +486,11 @@ function Player() {
   function getRulesWrapperStyle() {
     return rules ? { 'max-height': '400px'} : { 'max-height': 0, 'overflow': 'hidden'};
     // return rules ? { display: 'block'} : { display: 'none' };
+  }
 
+  function showModalStartOver() {
+    setShowModal(!showModal);
+    console.log("showModal updated*******")
   }
   
   let coins = useGetNestedObject(game, ['players', playerid, 'coins']);
@@ -542,15 +545,15 @@ function Player() {
     character_images = game.characters.map((c) => {
       switch(c.name) {
         case "Hen":
-          return require('./hen2.jpg');
+          return require('./hen2.png');
         case "Fox" :
-          return require('./fox.jpg');
+          return require('./fox.png');
         case "Chick" :
-          return require('./chic2.jpg');
+          return require('./chic2.png');
         case "Rooster" :
-          return require('./rooster2.jpg');
+          return require('./rooster2.png');
         case "Dog" :
-          return require('./dog1.jpg');
+          return require('./dog1.png');
       }
     });
     //require('./logo.jpeg')
@@ -598,11 +601,11 @@ function Player() {
                   <div className="p-cards-cards">
                         <span className="p-cards-label">Cards:</span>
                         <figure className={!character_0.active ? "revealed-card red-txt": "revealed-card"}>
-                          <img className={!character_0.active ?"dead" : ""} src={character_0_img} ></img>
+                          <img src={character_0_img} ></img>
                           <figcaption className={!character_0.active ?"red-txt" : ""}>{character_0_name} </figcaption>
                         </figure>
                         <figure className={!character_1.active ? "revealed-card red-txt": "revealed-card"}>
-                          <img className={!character_1.active ?"dead" : ""} src={character_1_img} ></img>
+                          <img src={character_1_img} ></img>
                           <figcaption className={!character_1.active ?"red-txt" : ""}>{character_1_name} </figcaption>
                         </figure>
                   </div>
@@ -613,7 +616,7 @@ function Player() {
 
                   <div className="p-cards-item">
                   <div className="p-cards-label">Pass/Challenge/Block: </div> 
-                    <div className={(game.blockedBy === p.id) | p.challenge? "p-cards-value challenge" : "p-cards-value"}>
+                    <div className={(game.blockedBy === p.id) | p.challenge? "p-cards-value" : "p-cards-value"}>
                     {game.blockedBy === p.id? "BLOCK!": ""}
                     {p.challenge? "CHALLENGE!": ""}
                     {p.passed && game.blockedBy !== p.id && !p.challenge? "pass" : ""}
@@ -621,15 +624,15 @@ function Player() {
                   </div>
                   {/* <div className="p-cards-item">
                     <div className="p-cards-label"> </div> 
-                    <div className="p-cards-value challenge">{p.challenge? "CHALLENGE!": ""}</div> 
+                    <div className="p-cards-value">{p.challenge? "CHALLENGE!": ""}</div> 
                   </div> */}
                   <div className="p-cards-item">
                   <div className="p-cards-label"> </div> 
-                    <div className="p-cards-value challenge">{p.losePlayer? "LOSE CARD!": ""}</div>
+                    <div className="p-cards-value">{p.losePlayer? "LOSE CARD!": ""}</div>
                   </div>
                   <div className="p-cards-item">
                     <span className="p-cards-label">Action:</span> 
-                    <span className="p-cards-value">{p.actionTaken && p.turn? p.actionTaken: p.lastAction} </span>
+                    <span className="p-cards-value">{p.actionTaken && p.turn? p.actionTaken: p.lastAction} {p.turn? actOnIdName : ""} </span>
                   </div>                  
                 </div>
               </div>
@@ -832,11 +835,19 @@ function Player() {
       );
     }
   }
-  if (!alive && game.players) {
+  if ((!alive && game.players) || winner) {
     return (
       <div className="container">
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <div className="rules">
+          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
+            <span className="btn-txt">Rules</span>
+          </button>
+          <div className="rules-collapse" style={getRulesWrapperStyle()}>
+          {game_rules}
+          </div>
+        </div>
         <div className="summary">
-          <div className="title">COOP</div> 
         <div className="error">{error}</div>
           <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
@@ -849,53 +860,29 @@ function Player() {
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           <h2 className="game-content-player-name">{playerName}</h2>    
           <h3 className="game-content-eggs">You have {coins} coins </h3>    
-          <h3 className="red-txt">You are DEAD :( </h3>
+          <h3 className="red-txt">{((!alive && game.players))? "You are DEAD :(" : "You are the WINNER!"} </h3>
         
         </div>
-        <div className="rules">
-          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
-            <span className="btn-txt">Rules</span>
-          </button>
-          <div className="rules-collapse" style={getRulesWrapperStyle()}>
-          {game_rules}
+        
+
+                <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
+        </div>
+
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
           </div>
         </div>
 
-        <div className="footer"></div>
-
         <button className="btn-start-over" onClick={resetGame}>Start Over</button>
-      </div>
-    );
-  }
-  else if (winner) {
-    return (
-      <div className="container">
-        <div className="summary">
-          <div className="title">COOP</div> 
-            <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
-            <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>            
-            <div className="players-container"> {playersItems}</div>
-        </div>
-        <div className="content">
-          {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} coins </h3>
-          <h3 className="green-txt">You are the WINNER! </h3>  
-        
-       
-        </div>
-        <button className="btn-start-over" onClick={resetGame}>Start Over</button>
-
-        <div className="rules">
-          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
-            <span className="btn-txt">Rules</span>
-          </button>
-          <div className="rules-collapse" style={getRulesWrapperStyle()}>
-          {game_rules}
-          </div>
-        </div>
-
-        <div className="footer"></div>
       </div>
     );
   }
@@ -904,8 +891,16 @@ function Player() {
     console.log(game.challenge);
     return(
       <div className="container">
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <div className="rules">
+          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
+            <span className="btn-txt">Rules</span>
+          </button>
+          <div className="rules-collapse" style={getRulesWrapperStyle()}>
+          {game_rules}
+          </div>
+        </div>
         <div className="summary">
-          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It's your turn.</h3>
           <h3 className="game-summary-current-action">Pick {game.players[game.pTurnId].influence} cards to keep</h3>
           <div className="players-container"> {playersItems}</div>
@@ -928,24 +923,40 @@ function Player() {
         </div>
         <button className="btn-start-over" onClick={resetGame}>Start Over</button>
 
-        <div className="rules">
-          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
-            <span className="btn-txt">Rules</span>
-          </button>
-          <div className="rules-collapse" style={getRulesWrapperStyle()}>
-          {game_rules}
-          </div>
+        
+
+                <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
         </div>
 
-        <div className="footer"></div>
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   // Loosing one of two players. Form to choose which to lose.
   } else if (losePlayer && character_0_active && character_1_active){ 
     return (
     <div className="container">
+      <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+      <div className="rules">
+          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
+            <span className="btn-txt">Rules</span>
+          </button>
+          <div className="rules-collapse" style={getRulesWrapperStyle()}>
+          {game_rules}
+          </div>
+      </div>
       <div className="summary">
-        <div className="title">COOP</div> 
         <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
         <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
         <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "you were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
@@ -977,17 +988,22 @@ function Player() {
           <button className="btn-default action-btn" type="submit">Submit</button>
         </form>
       </div>
-
-      <div className="rules">
-          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
-            <span className="btn-txt">Rules</span>
-          </button>
-          <div className="rules-collapse" style={getRulesWrapperStyle()}>
-          {game_rules}
-          </div>
+              <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
         </div>
 
-        <div className="footer"></div>
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
+          </div>
+        </div>
     </div>
     );
   }
@@ -995,8 +1011,16 @@ function Player() {
   else if (stealing && game.players[0].characters[0] && !game.losePlayer && !game.challenge) { 
     return (
       <div className="container">
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <div className="rules">
+          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
+            <span className="btn-txt">Rules</span>
+          </button>
+          <div className="rules-collapse" style={getRulesWrapperStyle()}>
+          {game_rules}
+          </div>
+        </div>
         <div className="summary">
-          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
           <div className="players-container"> {playersItems}</div>
@@ -1010,6 +1034,29 @@ function Player() {
           <button className="btn-default action-btn" type="submit" >Submit</button>
           </form>
         </div>
+
+                <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
+        </div>
+
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  } else if (assassinating && !game.actOnId.length && !game.losePlayer && !game.challenge) {
+    return (
+      <div className="container">
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1018,15 +1065,7 @@ function Player() {
           {game_rules}
           </div>
         </div>
-
-        <div className="footer"></div>
-      </div>
-    );
-  } else if (assassinating && !game.actOnId.length && !game.losePlayer && !game.challenge) {
-    return (
-      <div className="container">
         <div className="summary">
-          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
           <div className="players-container"> {playersItems}</div>
@@ -1040,6 +1079,32 @@ function Player() {
           </form>
         </div>
 
+        
+
+                <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
+        </div>
+
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // challenge check does not work here since you cannot challenge a coop.
+  else if (cooping && game.players && !game.challenge && coins >= 7 && !game.losePlayer) { 
+    return (
+      <div className="container">
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1048,17 +1113,7 @@ function Player() {
           {game_rules}
           </div>
         </div>
-
-        <div className="footer"></div>
-      </div>
-    );
-  }
-  // challenge check does not work here since you cannot challenge a coop.
-  else if (cooping && game.players && !game.challenge && coins >= 7 && !game.losePlayer) { 
-    return (
-      <div className="container">
         <div className="summary">
-          <div className="title">COOP</div> 
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
           <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
           <div className="players-container"> {playersItems}</div>
@@ -1073,6 +1128,30 @@ function Player() {
 
         </div>
 
+                <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
+        </div>
+
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // start turn, choose action to take.
+  else if (turn && !game.challenge && !game.actionTaken) { 
+    return (
+      <div className="container">
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1081,16 +1160,7 @@ function Player() {
           {game_rules}
           </div>
         </div>
-
-        <div className="footer"></div>
-      </div>
-    );
-  }
-  // start turn, choose action to take.
-  else if (turn && !game.challenge && !game.actionTaken) { 
-    return (
-      <div className="container">
-        <div className="title">COOP</div> 
+         
         <div className="summary">
         {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
           
@@ -1117,24 +1187,42 @@ function Player() {
           <button className="btn-default action-btn" onClick={action} name="assassinate" disabled={actionChosen || (coins < 3)}>Assassinate</button>
           <button className="btn-default action-btn" onClick={action} name="coop" disabled={!can_coop || actionChosen}>Coop!</button>
         </div>
-        <div className="rules">
-          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
-            <span className="btn-txt">Rules</span>
-          </button>
-          <div className="rules-collapse" style={getRulesWrapperStyle()}>
-          {game_rules}
-          </div>
+        
+
+                <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
         </div>
 
-        <div className="footer"></div>
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
+          </div>
+        </div>
     </div>
     );
   // Chance to block aide, challenge action, or block.
   } else if (game.challenge && !turn ) { 
     return (
       <div className="container">
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <div className="rules">
+          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
+            <span className="btn-txt"><div className="rules-btn-label">Rules</div>
+            {/* <div className="rules-btn-symbol">+</div> */}
+            </span>
+          </button>
+          <div className="rules-collapse" style={getRulesWrapperStyle()}>
+          {game_rules}
+          </div>
+        </div>
         <div className="summary">
-          <div className="title">COOP</div> 
           <div className="error">{error}</div>
 
           <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
@@ -1151,25 +1239,26 @@ function Player() {
           <button className="btn-default action-btn" onClick={block} disabled={(!can_block || challenged || passed)}>Block</button>
           {/* <button onClick={challenge}>Counteract</button> */}
           <button className="btn-default action-btn" onClick={pass} disabled={(passed || challenged)}>Pass</button>
-        
-        <div className="cards-and-rules-container">
-          {/* {cards} */}
-          {/* {game_rules} */}
-        </div>
         </div>
 
-        <div className="rules">
-          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
-            <span className="btn-txt"><div className="rules-btn-label">Rules</div>
-            {/* <div className="rules-btn-symbol">+</div> */}
-            </span>
-          </button>
-          <div className="rules-collapse" style={getRulesWrapperStyle()}>
-          {game_rules}
+        
+
+        <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
+        </div>
+
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
           </div>
         </div>
-
-        <div className="footer"></div>
 
       </div>
     );
@@ -1177,8 +1266,16 @@ function Player() {
   } else if (game.challenge && turn && blocked) { 
     return (
       <div className="container">
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <div className="rules">
+          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
+            <span className="btn-txt">Rules</span>
+          </button>
+          <div className="rules-collapse" style={getRulesWrapperStyle()}>
+          {game_rules}
+          </div>
+        </div>
         <div className="summary">
-          <div className="title">COOP</div> 
           <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
           <h3 className="game-summary-current-action">{ blocker_name + " blocked you! Choose to challenge or pass" }</h3>
           <div className="players-container"> {playersItems}</div>
@@ -1199,17 +1296,24 @@ function Player() {
         </div>
         <button className="btn-start-over" onClick={resetGame}>Start Over</button>
 
-        <div className="rules">
-          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
-            <span className="btn-txt">Rules</span>
-          </button>
-          <div className="rules-collapse" style={getRulesWrapperStyle()}>
-          {game_rules}
-          </div>
+        
+
+        <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
         </div>
 
-        <div className="footer"></div>
-
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
+          </div>
+        </div>
       </div>
       
     );
@@ -1221,8 +1325,17 @@ function Player() {
     }
     return (
       <div className="container">
+
+        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <div className="rules">
+          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
+            <span className="btn-txt">Rules</span>
+          </button>
+          <div className="rules-collapse" style={getRulesWrapperStyle()}>
+          {game_rules}
+          </div>
+        </div>
         <div className="summary">
-          <div className="title">COOP</div> 
         <div className="error">{error}</div>
           <h3 className="game-summary-title"> {turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
           <h3 className="game-summary-current-action">{turn? "You " : "They "}{game.actionTaken? actOnIdName? "chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "chose to: " + game.actionTaken : " have not chosen what to do..."}</h3>
@@ -1243,18 +1356,23 @@ function Player() {
         </div>
 
         </div>
-        <button className="btn-start-over" onClick={resetGame}>Start Over</button>
-
-        <div className="rules">
-          <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
-            <span className="btn-txt">Rules</span>
-          </button>
-          <div className="rules-collapse" style={getRulesWrapperStyle()}>
-          {game_rules}
-          </div>
+        
+        <div className="footer">
+          {console.log("showModal!: ",showModal)}
+        {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
+        <button className="btn-default btn-start-over" onClick={showModalStartOver}>Start Over</button>
         </div>
 
-        <div className="footer"></div>
+        <div className={showModal? "start-over-modal": "start-over-modal hide"}>
+          <div className="modal-content">
+            <span>Are you sure you want to start the game over? </span>
+              <br></br>
+            <div className="start-over-btn-container">
+              <button className="btn-dark btn-yes" onClick={resetGame}>Yes</button>
+              <button className="btn-dark btn-cancel" onClick={showModalStartOver}>Cancel</button>
+            </div>
+          </div>
+        </div>
       </div>
       
     );
