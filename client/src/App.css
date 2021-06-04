@@ -786,8 +786,24 @@ a:active {
     justify-content: end;
   }
 
+  .rules-item {
+    margin-bottom: 38px;
+  }
+
   .rules-col {
-    margin: 1px;
+    margin: 8px;
+  }
+
+  .rules-container{
+    font-size: 12px;
+  }
+
+  .rules-note {
+    font-size: 10px;
+  }
+
+  .modal-content {
+    width: 64%;
   }
 }
   
