@@ -493,7 +493,7 @@ function Player() {
     console.log("showModal updated*******")
   }
   
-  let coins = useGetNestedObject(game, ['players', playerid, 'coins']);
+  let coins_no = useGetNestedObject(game, ['players', playerid, 'coins']);
   const alive = useGetNestedObject(game, ['players', playerid, 'active']);
   const winner = game.winner === playerid ? true: false;
   const turn = useGetNestedObject(game, ['players', playerid, 'turn']) ? "Your turn!" : "";
@@ -508,7 +508,7 @@ function Player() {
 
   const passed = useGetNestedObject(game, ['players', playerid, 'passed']);
   const challenged = useGetNestedObject(game, ['players', playerid, 'challenge']);
-  const can_coop = coins > 6? true: false;
+  const can_coop = coins_no > 6? true: false;
   // console.log("can_coop? ", can_coop);
   const blocked = game.blockedBy !== "" && turn ? true : false;
 
@@ -557,6 +557,17 @@ function Player() {
       }
     });
     //require('./logo.jpeg')
+  }
+
+  let coins = "";
+  if (coins_no) {
+    coins = () => {
+      let c = coins_no;
+      while(c) {
+        c -= 1;
+        return( <img className="coin-img" src={require('./coin.png')}></img>);
+      }
+    }
   }
 
   let playersItems = "";
@@ -838,7 +849,7 @@ function Player() {
   if ((!alive && game.players) || winner) {
     return (
       <div className="container">
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -891,7 +902,7 @@ function Player() {
     console.log(game.challenge);
     return(
       <div className="container">
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -947,7 +958,7 @@ function Player() {
   } else if (losePlayer && character_0_active && character_1_active){ 
     return (
     <div className="container">
-      <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+      <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
       <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1011,7 +1022,7 @@ function Player() {
   else if (stealing && game.players[0].characters[0] && !game.losePlayer && !game.challenge) { 
     return (
       <div className="container">
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1056,7 +1067,7 @@ function Player() {
   } else if (assassinating && !game.actOnId.length && !game.losePlayer && !game.challenge) {
     return (
       <div className="container">
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1104,7 +1115,7 @@ function Player() {
   else if (cooping && game.players && !game.challenge && coins >= 7 && !game.losePlayer) { 
     return (
       <div className="container">
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1151,7 +1162,7 @@ function Player() {
   else if (turn && !game.challenge && !game.actionTaken) { 
     return (
       <div className="container">
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1165,16 +1176,18 @@ function Player() {
         {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
           
           <div className="error">{error}</div>
-          <h3 className="game-summary-title">It is your turn.</h3>
-          <div className="players-container"> {playersItems}</div>
           
+          <h2 className="game-content-player-name">{playerName}, You have {coins} coins</h2>
+
         </div>
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
+         
 
-          <h2 className="game-content-player-name">{playerName}, You have {coins} coins</h2>
+          <div className="players-container"> {playersItems}</div>
+          
+          <h3 className="game-summary-title">It is your turn.</h3>
           <h3 className="game-summary-current-action green-txt">Choose what action you want to take</h3>
-
           {/* <h3 className="game-content-eggs">You have {coins} coins </h3> */}
           
           
@@ -1211,7 +1224,7 @@ function Player() {
   } else if (game.challenge && !turn ) { 
     return (
       <div className="container">
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt"><div className="rules-btn-label">Rules</div>
@@ -1266,7 +1279,7 @@ function Player() {
   } else if (game.challenge && turn && blocked) { 
     return (
       <div className="container">
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1326,7 +1339,7 @@ function Player() {
     return (
       <div className="container">
 
-        <div className={rules ? "title purple-txt" : "title"}>Coop</div>
+        <Link to='/'><div className={rules ? "title purple-txt" : "title"}>Coop</div></Link>
         <div className="rules">
           <button className="btn-default rules-btn" onClick={() => setRules(!rules)} type="submit">
             <span className="btn-txt">Rules</span>
@@ -1337,19 +1350,21 @@ function Player() {
         </div>
         <div className="summary">
         <div className="error">{error}</div>
-          <h3 className="game-summary-title"> {turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
-          <h3 className="game-summary-current-action">{turn? "You " : "They "}{game.actionTaken? actOnIdName? "chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "chose to: " + game.actionTaken : " have not chosen what to do..."}</h3>
-          <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "You were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
-          <h3 className="game-summary-current-action">{challenger_name? challenged? "You challenged" : challenger_name + " challenged" : "" }</h3>
-          <h3 className="game-summary-current-action">{game.losePlayer? "Waiting on " + loser + " to choose which card to lose." : turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name  }</h3>
+          <h2 className="game-content-player-name">{playerName}</h2> 
+          <div className="coins-container">{coins}</div>        
+          {/* <img className="coin-img" src={require('./coin.png')}></img> */}
+          {/* <h3 className="game-content-eggs">You have {coins} coins </h3> */}
           <div className="players-container"> {playersItems}</div>
         </div>
 
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} coins </h3>
-        
+          
+         <h3 className="game-summary-title"> {turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
+          <h3 className="game-summary-current-action">{turn? "You " : "They "}{game.actionTaken? actOnIdName? "chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "chose to: " + game.actionTaken : " have not chosen what to do..."}</h3>
+          <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "You were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
+          <h3 className="game-summary-current-action">{challenger_name? challenged? "You challenged" : challenger_name + " challenged" : "" }</h3>
+          <h3 className="game-summary-current-action">{game.losePlayer? "Waiting on " + loser + " to choose which card to lose." : turn? "Waiting to see if someone challenges or blocks." : "Waiting on " + turn_player_name  }</h3>
         <div className="cards-and-rules-container">
           {/* {cards} */}
           {/* {game_rules} */}
