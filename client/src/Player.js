@@ -869,8 +869,8 @@ function Player() {
         </div>
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <h2 className="game-content-player-name">{playerName}</h2>    
-          <h3 className="game-content-eggs">You have {coins} coins </h3>    
+          <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>   
+              
           <h3 className="red-txt">{((!alive && game.players))? "You are DEAD :(" : "You are the WINNER!"} </h3>
         
         </div>
@@ -912,14 +912,14 @@ function Player() {
           </div>
         </div>
         <div className="summary">
-          <h3 className="game-summary-title">It's your turn.</h3>
-          <h3 className="game-summary-current-action">Pick {game.players[game.pTurnId].influence} cards to keep</h3>
+          <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>       
+         
           <div className="players-container"> {playersItems}</div>
         </div>
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} coins </h3>
+           <h3 className="game-summary-title">You chose to exchange.</h3>
+          
           <br></br>
           <h3 className="game-content-eggs">Pick {game.players[game.pTurnId].influence} cards to keep:</h3>
           {/* <div>Pick {game.players[game.pTurnId].influence} cards to keep:</div> */}
@@ -968,16 +968,20 @@ function Player() {
           </div>
       </div>
       <div className="summary">
-        <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
-        <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
-        <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "you were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
-        <h3 className="game-summary-current-action">{challenger_name? challenged? "You challenged" : challenger_name + " challenged" : "" }</h3>
+      <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>       
+
+        
         
         <div className="players-container"> {playersItems}</div>
       </div>
       <div className="content">
         {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
         {/* <div>HEY YOU LOSE A PLAYER!</div> */}
+        <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
+        <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
+        <h3 className="game-summary-current-action">{blocker? "You chose to block" : blocked ? "you were blocked" : game.blockedBy? blocker_name + " blocked" : ""}</h3>
+        <h3 className="game-summary-current-action">{challenger_name? challenged? "You challenged" : challenger_name + " challenged" : "" }</h3>
+
         <h3 className="game-summary-current-action green-txt"> { game.actionTaken == 'coop' ? "You have been COOPED!  Pick which on of your cards to loose." : "You lost challenge :( pick which character card to lose."  } </h3>
         <form onSubmit={handleLoseCharSubmit}>
         {/* <h3 className="game-summary-current-action">{""}</h3> */}
@@ -1032,13 +1036,13 @@ function Player() {
           </div>
         </div>
         <div className="summary">
-          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
-          <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
+        <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>   
           <div className="players-container"> {playersItems}</div>
         </div>
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
           {/* <div>Pick a Player to Steal From: </div> */}
+          <h3 className="game-summary-title">You chose to exchange.</h3>
           <h3 className="game-summary-current-action green-txt">Pick a Player to Steal From:</h3>
           <form onSubmit={handleActOnSubmit} name="steal">
             {steal_players_form}
@@ -1077,12 +1081,12 @@ function Player() {
           </div>
         </div>
         <div className="summary">
-          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
-          <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
+        <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>       
           <div className="players-container"> {playersItems}</div>
         </div>
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
+          <h3 className="game-summary-title">You chose to assassinate.</h3>
           <h3 className="game-summary-current-action green-txt">Pick a Player to Assassinate:</h3>
           <form onSubmit={handleActOnSubmit} name="assassinate">
             {coop_assassinate_form}
@@ -1125,12 +1129,12 @@ function Player() {
           </div>
         </div>
         <div className="summary">
-          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
-          <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
+        <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>       
           <div className="players-container"> {playersItems}</div>
         </div>
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
+          <h3 className="game-summary-title">You chose to assassinate.</h3>
           <h3 className="game-summary-current-action green-txt">Pick a Player to Coop:</h3>
           <form onSubmit={handleActOnSubmit} name="coop">
             {coop_assassinate_form}
@@ -1177,7 +1181,7 @@ function Player() {
           
           <div className="error">{error}</div>
           
-          <h2 className="game-content-player-name">{playerName}, You have {coins} coins</h2>
+          <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>
 
         </div>
         <div className="content">
@@ -1188,7 +1192,7 @@ function Player() {
           
           <h3 className="game-summary-title">It is your turn.</h3>
           <h3 className="game-summary-current-action green-txt">Choose what action you want to take</h3>
-          {/* <h3 className="game-content-eggs">You have {coins} coins </h3> */}
+          {/*  */}
           
           
           <button className="btn-default action-btn" onClick={action} name="income" disabled={actionChosen}>Collect Income</button>
@@ -1237,25 +1241,19 @@ function Player() {
         </div>
         <div className="summary">
           <div className="error">{error}</div>
-
-          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
-          <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3>
+          <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>  
           <div className="players-container"> {playersItems}</div>
         </div>
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-          
-          <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} coins </h3>
+          <h3 className="game-summary-title">It is {turn_player_name}'s turn.</h3>
+          <h3 className="game-summary-current-action">{game.actionTaken? actOnIdName? "They chose to " + game.actionTaken + ". Target player: " + actOnIdName + "!" : "They chose to: " + game.actionTaken : "They have not chosen what to do..."}</h3> 
           <h3 className="game-summary-current-action green-txt">Choose to challenge, block, or pass!</h3>
           <button className="btn-default action-btn" onClick={challenge} disabled={(!can_challenge || challenged || passed) }>Challenge</button>
           <button className="btn-default action-btn" onClick={block} disabled={(!can_block || challenged || passed)}>Block</button>
           {/* <button onClick={challenge}>Counteract</button> */}
           <button className="btn-default action-btn" onClick={pass} disabled={(passed || challenged)}>Pass</button>
         </div>
-
-        
-
         <div className="footer">
           {console.log("showModal!: ",showModal)}
         {/* <button className="btn-start-over" onClick={resetGame}>Start Over</button> */}
@@ -1289,15 +1287,15 @@ function Player() {
           </div>
         </div>
         <div className="summary">
-          <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
-          <h3 className="game-summary-current-action">{ blocker_name + " blocked you! Choose to challenge or pass" }</h3>
+        <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>                 
           <div className="players-container"> {playersItems}</div>
         </div>
         <div className="content">
           {/* <Link to={"/".concat(gameidURL)}>{gameidURL}</Link> */}
-        
-          <h2 className="game-content-player-name">{playerName}</h2>        
-          <h3 className="game-content-eggs">You have {coins} coins </h3>
+          <h3 className="game-summary-title">{turn? "It's your turn." : "It's " + turn_player_name + "\'s turn." }</h3>
+
+        <h3 className="game-summary-current-action">{ blocker_name + " blocked you! Choose to challenge or pass" }</h3>
+          
           <h3 className="game-summary-current-action green-txt">Challenge or Pass the Block!</h3>
           { (!challenged && !passed) ? <button className="btn-default action-btn" onClick={challengeBlock}>Challenge</button> : null }
           { !(passed) ? <button className="btn-default action-btn" onClick={pass}>Pass</button> : null }
@@ -1350,10 +1348,9 @@ function Player() {
         </div>
         <div className="summary">
         <div className="error">{error}</div>
-          <h2 className="game-content-player-name">{playerName}</h2> 
-          <div className="coins-container">{coins}</div>        
+          <h2 className="game-content-player-name">{playerName}, you have {coins_no} coins</h2>
           {/* <img className="coin-img" src={require('./coin.png')}></img> */}
-          {/* <h3 className="game-content-eggs">You have {coins} coins </h3> */}
+          {/*  */}
           <div className="players-container"> {playersItems}</div>
         </div>
 
